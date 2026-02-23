@@ -1,21 +1,23 @@
 "use client";
 
 import { GameStore } from "./useGameStore";
+import { ThemeConfig } from "./ThemeContext";
+import ThemeSwitcher from "./ThemeSwitcher";
 
 interface GameUIProps {
   store: GameStore;
+  theme: ThemeConfig;
 }
 
-/**
- * HTML overlay rendered on top of the R3F canvas.
- * Handles: score display, "Click to Start", and "Game Over" screen.
- */
-export default function GameUI({ store }: GameUIProps) {
+export default function GameUI({ store, theme }: GameUIProps) {
   const { state, startGame, resetGame } = store;
 
   return (
     <div className="ui-overlay">
-      {/* ── Score ─────────────────────────────────────────────────────── */}
+      {/* ── Theme Switcher (top-left, always visible) ─────────────── */}
+      <ThemeSwitcher />
+
+      {/* ── Score (top-right) ─────────────────────────────────────── */}
       {state.phase !== "idle" && (
         <div className="score-panel">
           <div className="score-label">SCORE</div>
@@ -25,7 +27,7 @@ export default function GameUI({ store }: GameUIProps) {
         </div>
       )}
 
-      {/* ── Click to Start ────────────────────────────────────────────── */}
+      {/* ── Click to Start ────────────────────────────────────────── */}
       {state.phase === "idle" && (
         <div className="center-overlay" onClick={startGame}>
           <h1 className="game-title">STACK TOWER</h1>
@@ -37,13 +39,13 @@ export default function GameUI({ store }: GameUIProps) {
         </div>
       )}
 
-      {/* ── Game Over ─────────────────────────────────────────────────── */}
+      {/* ── Game Over ─────────────────────────────────────────────── */}
       {state.phase === "gameover" && (
         <div className="center-overlay gameover">
           <h2 className="gameover-title">GAME OVER</h2>
           <div className="final-score-label">SCORE</div>
           <div className="final-score-value">{state.score}</div>
-          {state.score >= state.bestScore && state.score > 0 && (
+          {state.score > 0 && state.score >= state.bestScore && (
             <div className="new-best">🏆 New Best!</div>
           )}
           <button className="restart-btn" onClick={resetGame}>
@@ -52,7 +54,7 @@ export default function GameUI({ store }: GameUIProps) {
         </div>
       )}
 
-      {/* ── Playing hint (disappears after first drop) ─────────────────── */}
+      {/* ── First-move hint ───────────────────────────────────────── */}
       {state.phase === "playing" && state.score === 0 && (
         <div className="hint">Click anywhere to drop</div>
       )}

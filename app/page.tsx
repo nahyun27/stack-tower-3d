@@ -1,28 +1,32 @@
 "use client";
 
+import { ThemeProvider, useTheme } from "./game/ThemeContext";
+import { useGameStore } from "./game/useGameStore";
 import StackGame from "./game/StackGame";
 import GameUI from "./game/GameUI";
-import { useGameStore } from "./game/useGameStore";
 
-/**
- * Root page — renders the 3D game canvas and the HTML UI overlay.
- * Both share the same game store instance.
- */
-export default function Home() {
+/** Inner component so it can access the ThemeContext */
+function GameApp() {
   const store = useGameStore();
+  const { theme } = useTheme();
 
   return (
-    <div className="game-root" onClick={() => {
-      // Start game on first click anywhere (idle phase)
-      if (store.state.phase === "idle") {
-        store.startGame();
-      }
-    }}>
-      {/* 3D canvas fills the screen */}
-      <StackGame store={store} />
-
-      {/* HTML overlay sits on top */}
-      <GameUI store={store} />
+    <div
+      className="game-root"
+      onClick={() => {
+        if (store.state.phase === "idle") store.startGame();
+      }}
+    >
+      <StackGame store={store} theme={theme} />
+      <GameUI store={store} theme={theme} />
     </div>
+  );
+}
+
+export default function Home() {
+  return (
+    <ThemeProvider>
+      <GameApp />
+    </ThemeProvider>
   );
 }

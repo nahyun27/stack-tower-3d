@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useEffect } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { MoveAxis } from "./useGameStore";
@@ -11,15 +11,17 @@ interface MovingBoxProps {
   topY: number;
   color: string;
   active: boolean;
-  /** Which axis this box oscillates on */
   axis: MoveAxis;
-  /** Shared ref exposing live {x, z} to parent */
+  /** Center X of the previous (top) stacked box — oscillate around this */
+  pivotX: number;
+  /** Center Z of the previous (top) stacked box — oscillate around this */
+  pivotZ: number;
   positionRef: React.MutableRefObject<{ x: number; z: number }>;
 }
 
-// Slow, far-reaching oscillation for the "approaching from afar" feel
-const SPEED = 0.1;      // units per second (was 2.2)
-const AMPLITUDE = 4.0;  // starts far away, ±5.5
+// User-set values (modified from 1.4 → 0.1, 5.5 → 4.0)
+const SPEED = 0.1;
+const AMPLITUDE = 4.0;
 
 export default function MovingBox({
   width,
@@ -28,10 +30,26 @@ export default function MovingBox({
   color,
   active,
   axis,
+  pivotX,
+  pivotZ,
   positionRef,
 }: MovingBoxProps) {
   const meshRef = useRef<THREE.Mesh>(null);
   const dirRef = useRef(1);
+
+  // Reset direction and sync positionRef when pivot/axis changes
+  useEffect(() => {
+    if (!meshRef.current) return;
+    dirRef.current = 1;
+    if (axis === "x") {
+      meshRef.current.position.set(pivotX - AMPLITUDE, topY + 0.5, pivotZ);
+      positionRef.current = { x: pivotX - AMPLITUDE, z: pivotZ };
+    } else {
+      meshRef.current.position.set(pivotX, topY + 0.5, pivotZ - AMPLITUDE);
+      positionRef.current = { x: pivotX, z: pivotZ - AMPLITUDE };
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [axis, pivotX, pivotZ]);
 
   useFrame((_, delta) => {
     if (!meshRef.current || !active) return;
@@ -40,30 +58,34 @@ export default function MovingBox({
 
     if (axis === "x") {
       let newX = mesh.position.x + dirRef.current * SPEED;
-      if (newX > AMPLITUDE) { newX = AMPLITUDE; dirRef.current = -1; }
-      if (newX < -AMPLITUDE) { newX = -AMPLITUDE; dirRef.current = 1; }
+      if (newX > pivotX + AMPLITUDE) { newX = pivotX + AMPLITUDE; dirRef.current = -1; }
+      if (newX < pivotX - AMPLITUDE) { newX = pivotX - AMPLITUDE; dirRef.current = 1; }
       mesh.position.x = newX;
-      mesh.position.z = 0;
+      mesh.position.z = pivotZ;
       positionRef.current.x = newX;
-      positionRef.current.z = 0;
+      positionRef.current.z = pivotZ;
     } else {
-      // Axis Z: box comes from front-left diagonal and goes to back-right
       let newZ = mesh.position.z + dirRef.current * SPEED;
-      if (newZ > AMPLITUDE) { newZ = AMPLITUDE; dirRef.current = -1; }
-      if (newZ < -AMPLITUDE) { newZ = -AMPLITUDE; dirRef.current = 1; }
-      mesh.position.x = 0;
+      if (newZ > pivotZ + AMPLITUDE) { newZ = pivotZ + AMPLITUDE; dirRef.current = -1; }
+      if (newZ < pivotZ - AMPLITUDE) { newZ = pivotZ - AMPLITUDE; dirRef.current = 1; }
+      mesh.position.x = pivotX;
       mesh.position.z = newZ;
-      positionRef.current.x = 0;
+      positionRef.current.x = pivotX;
       positionRef.current.z = newZ;
     }
   });
 
-  const yPos = topY + 0.5;
+  const initX = axis === "x" ? pivotX - AMPLITUDE : pivotX;
+  const initZ = axis === "z" ? pivotZ - AMPLITUDE : pivotZ;
 
   return (
-    <mesh ref={meshRef} position={[axis === "x" ? -AMPLITUDE : 0, yPos, axis === "z" ? -AMPLITUDE : 0]} castShadow>
+    <mesh
+      ref={meshRef}
+      position={[initX, topY + 0.5, initZ]}
+      castShadow
+    >
       <boxGeometry args={[width, 1, depth]} />
-      <meshStandardMaterial color={color} roughness={0.3} metalness={0.1} />
+      <meshStandardMaterial color={color} roughness={0.28} metalness={0.2} />
     </mesh>
   );
 }
