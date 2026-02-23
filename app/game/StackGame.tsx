@@ -12,7 +12,7 @@ import GameCamera from "./GameCamera";
 import MovingBox from "./MovingBox";
 import StackedBoxes from "./StackedBoxes";
 import FallingPieces from "./FallingPieces";
-import LandingEffects from "./LandingEffect";
+import LandingEffects, { PreWarmEffects } from "./LandingEffect";
 import SnowParticles from "./SnowParticles";
 import RainParticles from "./RainParticles";
 import ElectricSparks from "./ElectricSparks";
@@ -211,6 +211,9 @@ export default function StackGame({ store, theme, playDrop }: StackGameProps) {
         blur={2.5}
         far={4}
       />
+
+      {/* ── Pre-warm shaders/fonts to prevent lag spikes ────────────── */}
+      <PreWarmEffects />
 
       {/* ── Atmospheric fog ─────────────────────────────────────────── */}
       <fog attach="fog" args={[theme.fogColor, theme.fogNear, theme.fogFar]} />

@@ -131,10 +131,20 @@ body,
   transform: scale(0.95);
 }
 
-/* ── Score Panel ─────────────────────────────────────────────────────── */
-.score-panel {
+/* ── Score Panels ────────────────────────────────────────────────────── */
+.current-score {
   position: absolute;
-  top: 70px;
+  top: 28px;
+  left: 28px;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.best-score {
+  position: absolute;
+  top: 66px;
   right: 28px;
   text-align: right;
   display: flex;
@@ -230,6 +240,32 @@ body,
 .tap-icon {
   font-size: 1.3em;
   animation: bounce 1.5s ease-in-out infinite;
+}
+
+/* ── Start Screen Sound Toggle ───────────────────────────────────────── */
+.start-sound-toggle {
+  margin-top: 12px;
+  margin-bottom: 24px;
+  padding: 10px 20px;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: var(--text-color);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  pointer-events: auto;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.start-sound-toggle:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
 }
 
 /* ── Game Over ───────────────────────────────────────────────────────── */

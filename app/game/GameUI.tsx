@@ -56,10 +56,12 @@ export default function GameUI({ store, theme, sounds }: GameUIProps) {
         {sounds.isMuted ? "🔇" : "🔊"}
       </button>
 
-      {/* ── Score panel (visible while playing / game over) ───────────── */}
-      <div className={`score-panel ${state.phase === "idle" ? "score-hidden" : ""}`}>
+      {/* ── Score panels (visible while playing / game over) ───────────── */}
+      <div className={`current-score ${state.phase === "idle" ? "score-hidden" : ""}`}>
         <div className="score-label">SCORE</div>
         <div className="score-value">{state.score}</div>
+      </div>
+      <div className={`best-score ${state.phase === "idle" ? "score-hidden" : ""}`}>
         <div className="best-label">BEST</div>
         <div className="best-value">{state.bestScore}</div>
       </div>
@@ -71,6 +73,13 @@ export default function GameUI({ store, theme, sounds }: GameUIProps) {
 
         {/* Inline theme picker — embedded in start screen */}
         <InlineThemePicker />
+
+        <button
+          className="start-sound-toggle"
+          onClick={(e) => { e.stopPropagation(); sounds.toggleMute(); }}
+        >
+          {sounds.isMuted ? "🔇 Sound: OFF" : "🔊 Sound: ON"}
+        </button>
 
         {state.bestScore > 0 && (
           <p className="best-score-hint">Best Score: {state.bestScore}</p>

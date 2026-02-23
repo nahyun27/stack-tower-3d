@@ -394,3 +394,43 @@ export default function LandingEffects({ effects, onDone }: LandingEffectsProps)
     </>
   );
 }
+
+// ─── Pre-Warm Component (prevents lag on first Perfect) ─────────────────────
+
+export function PreWarmEffects() {
+  // We render tiny, almost fully transparent versions of the heavy effects
+  // far out of view to ensure WebGL compiles their shaders immediately.
+  return (
+    <group position={[0, -100, 0]} scale={[0.01, 0.01, 0.01]}>
+      {/* Pre-warm the specific Text component configuration */}
+      <Text
+        fontSize={0.45}
+        color="#FFD700"
+        anchorX="center"
+        anchorY="middle"
+        material-transparent
+        material-opacity={0.01} // must be >0 to compile sometimes, but close to 0
+      >
+        ✦ PERFECT ✦
+      </Text>
+
+      {/* Forces compilation of torus, circle, octahedron, cone, plane, etc. */}
+      <mesh>
+        <torusGeometry args={[0.75, 0.07, 8, 48]} />
+        <meshBasicMaterial opacity={0.01} transparent />
+      </mesh>
+      <mesh>
+        <circleGeometry args={[0.85, 32]} />
+        <meshBasicMaterial opacity={0.01} transparent />
+      </mesh>
+      <mesh>
+        <octahedronGeometry args={[0.1, 0]} />
+        <meshBasicMaterial opacity={0.01} transparent blending={THREE.AdditiveBlending} />
+      </mesh>
+      <mesh>
+        <coneGeometry args={[0.05, 0.8, 4]} />
+        <meshBasicMaterial opacity={0.01} transparent blending={THREE.AdditiveBlending} />
+      </mesh>
+    </group>
+  );
+}
