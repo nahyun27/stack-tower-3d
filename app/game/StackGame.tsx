@@ -43,7 +43,7 @@ export default function StackGame({ store, theme, playDrop }: StackGameProps) {
 
   // Top stacked box — provides pivot and camera height
   const topBox = state.stack[state.stack.length - 1];
-  const towerTopY = topBox ? topBox.y + 0.5 : 1;
+  const towerTopY = topBox ? topBox.y + 1 : 1.5;
   const pivotX = topBox?.x ?? 0;
   const pivotZ = topBox?.z ?? 0;
 
@@ -179,7 +179,6 @@ export default function StackGame({ store, theme, playDrop }: StackGameProps) {
           pivotX={pivotX}
           pivotZ={pivotZ}
           positionRef={positionRef}
-          landed={latestBoxId !== null}
         />
       )}
 

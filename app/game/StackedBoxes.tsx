@@ -66,8 +66,8 @@ function SingleBox({ box, isLatest, theme }: SingleBoxProps) {
             roughness={0.05}
             metalness={0.1}
             transparent
-            opacity={0.4}
-            transmission={0.6}
+            opacity={0.55}
+            transmission={0.4}
             thickness={1}
           />
         ) : theme.useIceCrystal ? (

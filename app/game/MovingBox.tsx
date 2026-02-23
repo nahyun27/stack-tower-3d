@@ -19,14 +19,13 @@ interface MovingBoxProps {
   /** Center Z of the previous (top) stacked box — oscillate around this */
   pivotZ: number;
   positionRef?: React.MutableRefObject<[number, number, number]>;
-  landed?: boolean;
 }
 
 // User-set values
 const SPEED = 0.1;
 const AMPLITUDE = 4.0;
 
-export default function MovingBox({ width, depth, topY, color, axis, pivotX, pivotZ, active, positionRef, landed }: MovingBoxProps) {
+export default function MovingBox({ width, depth, topY, color, axis, pivotX, pivotZ, active, positionRef }: MovingBoxProps) {
   const meshRef = useRef<THREE.Mesh>(null);
   const dirRef = useRef(1);
   const { theme } = useTheme();
@@ -90,27 +89,7 @@ export default function MovingBox({ width, depth, topY, color, axis, pivotX, piv
       mesh.scale.x = idleScale;
       mesh.scale.z = idleScale;
 
-      // Landing squish (tension 300, friction 10 -> manual math or simple sine decay)
-      // If landed is true, we trigger a bounce
-      if (landed) {
-        landTime.current += delta;
-        const bounceDur = 0.6;
-        if (landTime.current < bounceDur) {
-          const t = landTime.current / bounceDur;
-          // Squish down then spring up
-          const bounce = Math.sin(t * Math.PI * 4) * Math.exp(-t * 5) * 0.1;
-          mesh.scale.y = 1 - bounce;
-          mesh.position.y = (topY + 0.5) - bounce * 0.5;
-        } else {
-          mesh.scale.y = 1;
-          mesh.position.y = topY + 0.5;
-        }
-      } else {
-        // Reset scale if not landed and not active (e.g., if it fell off)
-        if (!active && !landed) {
-          mesh.scale.set(1, 1, 1);
-        }
-      }
+      mesh.position.y = topY + 0.5;
     }
   });
 
@@ -148,8 +127,8 @@ export default function MovingBox({ width, depth, topY, color, axis, pivotX, piv
             roughness={0.05}
             metalness={0.1} // Some slight specular
             transparent
-            opacity={0.4}
-            transmission={0.6}
+            opacity={0.55}
+            transmission={0.4}
             thickness={1}
           />
         ) : theme.useIceCrystal ? (

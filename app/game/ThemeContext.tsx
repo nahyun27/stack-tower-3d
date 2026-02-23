@@ -209,19 +209,19 @@ export const THEMES: Record<ThemeId, ThemeConfig> = {
     bgGradient: "linear-gradient(180deg, #E6E6FA 0%, #E0FFE0 50%, #FFE4E1 100%)",
     blockColor: (hue: number) => {
       const jellyPalette = [
-        "#FFB6C1", // Strawberry
-        "#FFDAB9", // Orange
-        "#FFFACD", // Lemon
-        "#E0FFE0", // Lime
-        "#B0E0E6", // Blueberry
-        "#E6E6FA", // Grape
-        "#FFDAB9", // Peach
-        "#FFB6D9", // Bubblegum pink
+        "#FF3366", // Vibrant Strawberry
+        "#FF8C00", // Vibrant Orange
+        "#FFD700", // Vibrant Lemon
+        "#32CD32", // Vibrant Lime
+        "#1E90FF", // Vibrant Blueberry
+        "#9370DB", // Vibrant Grape
+        "#FF7F50", // Vibrant Peach
+        "#FF1493", // Vibrant Bubblegum
       ];
       return jellyPalette[Math.round(hue / 25) % jellyPalette.length];
     },
     ambientColor: "#FFE4E6",
-    ambientIntensity: 0.6,
+    ambientIntensity: 0.5,
     dirLightColor: "#FFF5E6",
     dirLightIntensity: 1.8,
     rimColor: "#FFB6D9",
@@ -229,7 +229,7 @@ export const THEMES: Record<ThemeId, ThemeConfig> = {
     fogColor: "#FFF0F5",
     fogNear: 15,
     fogFar: 80,
-    bloomIntensity: 0.5,
+    bloomIntensity: 0.65,
     bloomThreshold: 0.2,
     titleGradient: "linear-gradient(135deg, #FFB6C1, #E6E6FA, #B0E0E6)",
     scoreColor: "#FF3D9A",
