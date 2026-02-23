@@ -361,6 +361,172 @@ body,
   }
 }
 
+/* ── Overlay transitions ─────────────────────────────────────────────── */
+.overlay-visible {
+  opacity: 1;
+  pointer-events: all;
+  transform: translateY(0);
+  transition: opacity 0.35s ease, transform 0.35s ease;
+}
+
+.overlay-hidden {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(12px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+/* ── Score panel visibility ──────────────────────────────────────────── */
+.score-hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ── Start screen button ─────────────────────────────────────────────── */
+.start-btn {
+  margin-top: 24px;
+  padding: 16px 56px;
+  font-size: clamp(15px, 2.2vw, 20px);
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  color: var(--btn-text, #000);
+  background: var(--btn-bg, linear-gradient(135deg, #64b3ff, #c084fc));
+  border: none;
+  border-radius: 100px;
+  cursor: pointer;
+  pointer-events: all;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  box-shadow: 0 4px 28px rgba(100, 179, 255, 0.35);
+  animation: pulse 2.2s ease-in-out infinite;
+}
+
+.start-btn:hover {
+  transform: scale(1.06);
+  box-shadow: 0 8px 36px rgba(100, 179, 255, 0.55);
+}
+
+.start-btn:active {
+  transform: scale(0.97);
+}
+
+/* ── Best score hint on start screen ────────────────────────────────── */
+.best-score-hint {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--subtle-text);
+  letter-spacing: 0.08em;
+  margin-top: 4px;
+}
+
+/* ── Inline theme picker ─────────────────────────────────────────────── */
+.inline-theme-picker {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin: 22px 0 4px;
+}
+
+.theme-pick-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--subtle-text);
+}
+
+.inline-theme-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.inline-theme-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1.5px solid rgba(255, 255, 255, 0.12);
+  border-radius: 14px;
+  padding: 10px 14px;
+  cursor: pointer;
+  color: rgba(255, 255, 255, 0.55);
+  transition: all 0.2s ease;
+  font-family: inherit;
+  pointer-events: all;
+  min-width: 62px;
+}
+
+.inline-theme-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
+  color: rgba(255, 255, 255, 0.9);
+  transform: translateY(-2px);
+}
+
+.inline-theme-btn.active {
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.45);
+  color: #fff;
+  box-shadow: 0 0 16px rgba(255, 255, 255, 0.15);
+}
+
+.inline-theme-btn .theme-emoji {
+  font-size: 22px;
+}
+
+.inline-theme-btn .theme-name {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* ── Game over button row ─────────────────────────────────────────────── */
+.gameover-btns {
+  display: flex;
+  gap: 12px;
+  margin-top: 28px;
+  pointer-events: all;
+}
+
+.gameover-btn {
+  padding: 14px 28px;
+  font-size: clamp(13px, 1.8vw, 16px);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  border: none;
+  border-radius: 100px;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.gameover-btn-primary {
+  background: var(--btn-bg, linear-gradient(135deg, #64b3ff, #c084fc));
+  color: var(--btn-text, #000);
+  box-shadow: 0 4px 24px rgba(100, 179, 255, 0.3);
+}
+
+.gameover-btn-primary:hover {
+  transform: scale(1.06);
+  box-shadow: 0 8px 32px rgba(100, 179, 255, 0.5);
+}
+
+.gameover-btn-secondary {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-color, #fff);
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+}
+
+.gameover-btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.18);
+  transform: scale(1.04);
+}
+
+.gameover-btn:active {
+  transform: scale(0.97);
+}
+
 /* ── Neon City: Scanline overlay ──────────────────────────────────────── */
 .game-root::after {
   content: "";

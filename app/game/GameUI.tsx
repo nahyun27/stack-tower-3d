@@ -1,9 +1,9 @@
 "use client";
 
+import { useTheme, THEMES, ThemeId } from "./ThemeContext";
 import { GameStore } from "./useGameStore";
 import { ThemeConfig } from "./ThemeContext";
 import { SoundEffects } from "./useSoundEffects";
-import ThemeSwitcher from "./ThemeSwitcher";
 
 interface GameUIProps {
   store: GameStore;
@@ -11,15 +11,41 @@ interface GameUIProps {
   sounds: SoundEffects;
 }
 
+/** Inline theme picker — renders theme buttons without absolute positioning */
+function InlineThemePicker() {
+  const { themeId, setTheme } = useTheme();
+  const themeOrder: ThemeId[] = ["classic", "neon", "ice", "jelly"];
+
+  return (
+    <div className="inline-theme-picker">
+      <p className="theme-pick-label">Choose a theme</p>
+      <div className="inline-theme-buttons">
+        {themeOrder.map((id) => {
+          const t = THEMES[id];
+          return (
+            <button
+              key={id}
+              className={`inline-theme-btn ${id === themeId ? "active" : ""}`}
+              onClick={(e) => { e.stopPropagation(); setTheme(id); }}
+              title={t.name}
+              aria-label={`Switch to ${t.name} theme`}
+            >
+              <span className="theme-emoji">{t.emoji}</span>
+              <span className="theme-name">{t.name}</span>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 export default function GameUI({ store, theme, sounds }: GameUIProps) {
   const { state, startGame, resetGame, retryGame } = store;
 
   return (
     <div className="ui-overlay">
-      {/* ── Theme Switcher: visible only on start / game over screens ── */}
-      {state.phase !== "playing" && <ThemeSwitcher />}
-
-      {/* ── Mute button (top-right, always visible) ──────────────────── */}
+      {/* ── Mute button (always visible, top-right) ───────────────────── */}
       <button
         className="mute-btn"
         onClick={sounds.toggleMute}
@@ -29,53 +55,54 @@ export default function GameUI({ store, theme, sounds }: GameUIProps) {
         {sounds.isMuted ? "🔇" : "🔊"}
       </button>
 
-      {/* ── Score (visible while playing + game over) ─────────────────── */}
-      {state.phase !== "idle" && (
-        <div className="score-panel">
-          <div className="score-label">SCORE</div>
-          <div className="score-value">{state.score}</div>
-          <div className="best-label">BEST</div>
-          <div className="best-value">{state.bestScore}</div>
-        </div>
-      )}
+      {/* ── Score panel (visible while playing / game over) ───────────── */}
+      <div className={`score-panel ${state.phase === "idle" ? "score-hidden" : ""}`}>
+        <div className="score-label">SCORE</div>
+        <div className="score-value">{state.score}</div>
+        <div className="best-label">BEST</div>
+        <div className="best-value">{state.bestScore}</div>
+      </div>
 
-      {/* ── Start Screen ──────────────────────────────────────────────── */}
-      {state.phase === "idle" && (
-        <div className="center-overlay" onClick={startGame}>
-          <h1 className="game-title">STACK TOWER</h1>
-          <p className="game-subtitle">3D</p>
-          <div className="start-prompt">
-            <span className="tap-icon">👆</span>
-            <span>Click to Start</span>
-          </div>
-        </div>
-      )}
+      {/* ══ START SCREEN ══════════════════════════════════════════════════ */}
+      <div className={`center-overlay start-overlay ${state.phase === "idle" ? "overlay-visible" : "overlay-hidden"}`}>
+        <h1 className="game-title">STACK TOWER</h1>
+        <p className="game-subtitle">3D</p>
 
-      {/* ── Game Over ─────────────────────────────────────────────────── */}
-      {state.phase === "gameover" && (
-        <div className="center-overlay gameover">
-          <h2 className="gameover-title">GAME OVER</h2>
-          <div className="final-score-label">SCORE</div>
-          <div className="final-score-value">{state.score}</div>
-          {state.score > 0 && state.score >= state.bestScore && (
-            <div className="new-best">🏆 New Best!</div>
-          )}
-          {/* RETRY → immediately starts a new game */}
-          <button className="restart-btn" onClick={retryGame}>
-            RETRY
+        {/* Inline theme picker — embedded in start screen */}
+        <InlineThemePicker />
+
+        {state.bestScore > 0 && (
+          <p className="best-score-hint">Best: {state.bestScore}</p>
+        )}
+
+        <button className="start-btn" onClick={startGame}>
+          <span className="tap-icon">👆</span> CLICK TO START
+        </button>
+      </div>
+
+      {/* ══ GAME OVER SCREEN ══════════════════════════════════════════════ */}
+      <div className={`center-overlay gameover-overlay ${state.phase === "gameover" ? "overlay-visible" : "overlay-hidden"}`}>
+        <h2 className="gameover-title">GAME OVER</h2>
+        <div className="final-score-label">SCORE</div>
+        <div className="final-score-value">{state.score}</div>
+        {state.score > 0 && state.score >= state.bestScore && (
+          <div className="new-best">🏆 New Best!</div>
+        )}
+
+        {/* Inline theme picker — embedded in game over screen */}
+        <InlineThemePicker />
+
+        <div className="gameover-btns">
+          <button className="gameover-btn gameover-btn-secondary" onClick={resetGame}>
+            🎨 Change Theme
           </button>
-          {/* Secondary: go back to start screen (so user can change theme) */}
-          <button
-            className="restart-btn"
-            style={{ marginTop: 8, fontSize: "0.8em", opacity: 0.7 }}
-            onClick={resetGame}
-          >
-            Change Theme
+          <button className="gameover-btn gameover-btn-primary" onClick={retryGame}>
+            🔄 RETRY
           </button>
         </div>
-      )}
+      </div>
 
-      {/* ── First-move hint ───────────────────────────────────────────── */}
+      {/* ── First-move hint (during play) ────────────────────────────── */}
       {state.phase === "playing" && state.score === 0 && (
         <div className="hint">Click anywhere to drop</div>
       )}

@@ -253,26 +253,15 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   // Persist theme choice and apply CSS variable for background
   useEffect(() => {
-    document.documentElement.style.setProperty(
-      "--game-bg",
-      THEMES[themeId].bgGradient
-    );
-    document.documentElement.style.setProperty(
-      "--score-color",
-      THEMES[themeId].scoreColor
-    );
-    document.documentElement.style.setProperty(
-      "--text-color",
-      THEMES[themeId].textColor
-    );
-    document.documentElement.style.setProperty(
-      "--subtle-text",
-      THEMES[themeId].subtleTextColor
-    );
-    document.documentElement.style.setProperty(
-      "--overlay-bg",
-      THEMES[themeId].overlayBg
-    );
+    const t = THEMES[themeId];
+    document.documentElement.style.setProperty("--game-bg", t.bgGradient);
+    document.documentElement.style.setProperty("--score-color", t.scoreColor);
+    document.documentElement.style.setProperty("--text-color", t.textColor);
+    document.documentElement.style.setProperty("--subtle-text", t.subtleTextColor);
+    document.documentElement.style.setProperty("--overlay-bg", t.overlayBg);
+    document.documentElement.style.setProperty("--btn-bg", t.buttonBg);
+    document.documentElement.style.setProperty("--btn-text", t.buttonText);
+    document.documentElement.style.setProperty("--title-gradient", t.titleGradient);
   }, [themeId]);
 
   const setTheme = useCallback((id: ThemeId) => {
