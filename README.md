@@ -6,7 +6,7 @@ An addictive 3D stacking game where precision matters. Click at the perfect mome
 
 [![Live Demo](https://img.shields.io/badge/🎮-Play%20Now-blue?style=for-the-badge)](https://tower-stacking.vercel.app)
 
-![Game Preview](public/preview.gif) *← Add screenshot/gif later*
+<!-- ![Game Preview](public/preview.gif) *← Add screenshot/gif later* -->
 
 ## ✨ Features
 
