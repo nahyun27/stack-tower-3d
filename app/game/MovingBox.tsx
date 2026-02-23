@@ -33,6 +33,7 @@ export default function MovingBox({ width, depth, topY, color, axis, pivotX, piv
   // Spring for landing squish
   const landTime = useRef(0);
   const isJelly = theme.useJelly;
+  const isClassic = theme.id === "classic";
 
   // Reset direction and sync positionRef when pivot/axis changes
   useEffect(() => {
@@ -102,7 +103,7 @@ export default function MovingBox({ width, depth, topY, color, axis, pivotX, piv
 
   return (
     <mesh ref={meshRef} castShadow position={initialPosition}>
-      <RoundedBox args={[width, 1, depth]} radius={isJelly ? 0.15 : 0.06} smoothness={isJelly ? 5 : 3}>
+      <RoundedBox args={[width, 1, depth]} radius={isJelly ? 0.15 : isClassic ? 0.05 : 0.06} smoothness={isJelly ? 5 : isClassic ? 4 : 3}>
         {theme.useNeonGlass ? (
           /* ⚡ Neon Glass */
           <meshPhysicalMaterial

@@ -26,7 +26,7 @@ function GameApp() {
     // Phase transitions for specific sounds
     if (state.phase !== prevPhaseRef.current) {
       if (state.phase === "gameover") {
-        sounds.playGameOver();
+        sounds.playGameOver(theme.id);
       }
       prevPhaseRef.current = state.phase;
     }

@@ -83,7 +83,7 @@ function FallingPieceMesh({ piece, onRemove, theme }: FallingPieceProps) {
       position={[piece.x, piece.y, piece.z]}
       castShadow
     >
-      <RoundedBox args={[piece.width, 1, piece.depth]} radius={theme.id === "jelly" ? 0.15 : 0.06} smoothness={theme.id === "jelly" ? 5 : 3}>
+      <RoundedBox args={[piece.width, 1, piece.depth]} radius={theme.id === "jelly" ? 0.15 : theme.id === "classic" ? 0.05 : 0.06} smoothness={theme.id === "jelly" ? 5 : theme.id === "classic" ? 4 : 3}>
         {theme.useNeonGlass ? (
           <meshPhysicalMaterial
             color={color}

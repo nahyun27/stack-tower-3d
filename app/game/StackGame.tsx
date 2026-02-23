@@ -3,7 +3,7 @@
 import { useRef, useCallback, useState, useEffect } from "react";
 import { Canvas } from "@react-three/fiber";
 import { Stars, ContactShadows } from "@react-three/drei";
-import { EffectComposer, Bloom, Vignette, ChromaticAberration } from "@react-three/postprocessing";
+import { EffectComposer, Bloom, Vignette, DepthOfField } from "@react-three/postprocessing";
 import { BlendFunction } from "postprocessing";
 import { GameStore } from "./useGameStore";
 import { ThemeConfig } from "./ThemeContext";
@@ -21,6 +21,8 @@ import AuroraBackground from "./AuroraBackground";
 import IceSparkles from "./IceSparkles";
 import JellyClouds from "./JellyClouds";
 import JellyBubbles from "./JellyBubbles";
+import ClassicStars from "./ClassicStars";
+import ClassicGrid from "./ClassicGrid";
 
 interface StackGameProps {
   store: GameStore;
@@ -127,8 +129,8 @@ export default function StackGame({ store, theme, playDrop }: StackGameProps) {
         </>
       )}
 
-      {/* ── Stars background (dark themes) ─────────────────────────── */}
-      {theme.isDark && theme.id !== "ice" && (
+      {/* ── Stars background (dark themes, except classic and ice) ─────────── */}
+      {theme.isDark && theme.id !== "ice" && theme.id !== "classic" && (
         <Stars
           radius={120}
           depth={60}
@@ -138,6 +140,15 @@ export default function StackGame({ store, theme, playDrop }: StackGameProps) {
           fade
           speed={0.6}
         />
+      )}
+
+      {/* ── Classic Theme: Stars & Grid ────────────────────────────── */}
+      {theme.id === "classic" && (
+        <>
+          <ClassicStars />
+          <ClassicGrid />
+          <pointLight position={[0, 10, 0]} color="#ffffff" intensity={0.8} distance={50} />
+        </>
       )}
 
       {/* ── Neon City: grid floor + rain + electric sparks ───────────── */}
@@ -211,7 +222,14 @@ export default function StackGame({ store, theme, playDrop }: StackGameProps) {
           luminanceThreshold={theme.bloomThreshold}
           luminanceSmoothing={0.9}
         />
-        <Vignette eskil={false} offset={0.12} darkness={theme.isDark ? 0.55 : 0.2} />
+        <Vignette
+          eskil={false}
+          offset={theme.id === "classic" ? 0.3 : 0.12}
+          darkness={theme.id === "classic" ? 0.2 : (theme.isDark ? 0.55 : 0.2)}
+        />
+        {theme.id === "classic" ? (
+          <DepthOfField focusDistance={0.05} focalLength={0.02} bokehScale={2} height={480} />
+        ) : <></>}
       </EffectComposer>
     </Canvas>
   );

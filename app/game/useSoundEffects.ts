@@ -179,6 +179,38 @@ export function useSoundEffects() {
     try {
       const [ctx, master] = getCtx();
 
+      if (themeId === "classic") {
+        if (quality === "perfect") {
+          // Ascending chime (600-800-1000Hz arpeggio, 0.4s)
+          [600, 800, 1000].forEach((freq, i) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = "sine";
+            osc.frequency.setValueAtTime(freq, ctx.currentTime + i * 0.1);
+            gain.connect(master);
+            const t = ctx.currentTime + i * 0.1;
+            gain.gain.setValueAtTime(0, t);
+            gain.gain.linearRampToValueAtTime(0.2, t + 0.05);
+            gain.gain.exponentialRampToValueAtTime(0.001, t + 0.4);
+            osc.start(t);
+            osc.stop(t + 0.4);
+          });
+        } else {
+          // Clean "click" (sine, 500Hz → 300Hz, 0.15s)
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = "sine";
+          osc.frequency.setValueAtTime(500, ctx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(300, ctx.currentTime + 0.1);
+          gain.connect(master);
+          gain.gain.setValueAtTime(0.3, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.15);
+          osc.start();
+          osc.stop(ctx.currentTime + 0.15);
+        }
+        return;
+      }
+
       if (themeId === "neon") {
         // Neon City: electronic beep sequence
         if (quality === "perfect") {
@@ -355,10 +387,26 @@ export function useSoundEffects() {
   }, []);
 
   // ── Game over descending trombone-ish ─────────────────────────────────────
-  const playGameOver = useCallback(() => {
+  const playGameOver = useCallback((themeId?: string) => {
     if (isMutedRef.current) return;
     try {
       const [ctx, master] = getCtx();
+
+      if (themeId === "classic") {
+        // Descending tone (400Hz → 200Hz, 0.5s)
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(400, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(200, ctx.currentTime + 0.4);
+        gain.connect(master);
+        gain.gain.setValueAtTime(0.3, ctx.currentTime);
+        gain.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.5);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.5);
+        return;
+      }
+
       [440, 350, 280, 210].forEach((freq, i) => {
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
