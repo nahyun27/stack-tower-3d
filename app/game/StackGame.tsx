@@ -3,7 +3,8 @@
 import { useRef, useCallback, useState, useEffect } from "react";
 import { Canvas } from "@react-three/fiber";
 import { Stars, ContactShadows } from "@react-three/drei";
-import { EffectComposer, Bloom, Vignette } from "@react-three/postprocessing";
+import { EffectComposer, Bloom, Vignette, ChromaticAberration } from "@react-three/postprocessing";
+import { BlendFunction } from "postprocessing";
 import { GameStore } from "./useGameStore";
 import { ThemeConfig } from "./ThemeContext";
 import { LandingEffectData } from "./LandingEffect";
@@ -13,6 +14,9 @@ import StackedBoxes from "./StackedBoxes";
 import FallingPieces from "./FallingPieces";
 import LandingEffects from "./LandingEffect";
 import SnowParticles from "./SnowParticles";
+import RainParticles from "./RainParticles";
+import ElectricSparks from "./ElectricSparks";
+import CityGrid from "./CityGrid";
 
 interface StackGameProps {
   store: GameStore;
@@ -51,7 +55,7 @@ export default function StackGame({ store, theme, playDrop }: StackGameProps) {
           x: placed.x,
           y: placed.y,
           z: placed.z,
-          color: placed.color,
+          color: theme.blockColor(placed.hue),
           perfect: state.lastDropPerfect,
         },
       ]);
@@ -115,6 +119,19 @@ export default function StackGame({ store, theme, playDrop }: StackGameProps) {
         />
       )}
 
+      {/* ── Neon City: grid floor + rain + electric sparks ───────────── */}
+      {theme.id === "neon" && (
+        <>
+          <CityGrid />
+          <RainParticles />
+          <ElectricSparks />
+          {/* Extra neon point lights for atmosphere */}
+          <pointLight position={[-8, 4, 0]} color="#FF10F0" intensity={1.2} distance={25} />
+          <pointLight position={[8, 4, 0]} color="#00FFFF" intensity={1.2} distance={25} />
+          <pointLight position={[0, 4, -8]} color="#BF00FF" intensity={0.8} distance={25} />
+        </>
+      )}
+
       {/* ── Snow particles (ice theme only) ────────────────────────── */}
       {theme.id === "ice" && <SnowParticles />}
 
@@ -145,7 +162,7 @@ export default function StackGame({ store, theme, playDrop }: StackGameProps) {
       )}
 
       {/* ── Falling cut-off pieces ──────────────────────────────────── */}
-      <FallingPieces pieces={state.fallingPieces} onRemove={removeFallenPiece} />
+      <FallingPieces pieces={state.fallingPieces} onRemove={removeFallenPiece} theme={theme} />
 
       {/* ── Landing ring / particles / Perfect text ─────────────────── */}
       <LandingEffects effects={landingEffects} onDone={removeLandingEffect} />
@@ -168,6 +185,12 @@ export default function StackGame({ store, theme, playDrop }: StackGameProps) {
           intensity={theme.bloomIntensity}
           luminanceThreshold={theme.bloomThreshold}
           luminanceSmoothing={0.9}
+        />
+        <ChromaticAberration
+          blendFunction={BlendFunction.NORMAL}
+          offset={[theme.id === "neon" ? 0.002 : 0, theme.id === "neon" ? 0.002 : 0] as unknown as import("three").Vector2}
+          radialModulation={false}
+          modulationOffset={0}
         />
         <Vignette eskil={false} offset={0.12} darkness={theme.isDark ? 0.55 : 0.2} />
       </EffectComposer>

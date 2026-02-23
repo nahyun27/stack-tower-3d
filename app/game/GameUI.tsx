@@ -12,14 +12,14 @@ interface GameUIProps {
 }
 
 export default function GameUI({ store, theme, sounds }: GameUIProps) {
-  const { state, startGame, resetGame } = store;
+  const { state, startGame, resetGame, retryGame } = store;
 
   return (
     <div className="ui-overlay">
-      {/* ── Theme Switcher (top-left, always visible) ─────────────── */}
-      <ThemeSwitcher />
+      {/* ── Theme Switcher: visible only on start / game over screens ── */}
+      {state.phase !== "playing" && <ThemeSwitcher />}
 
-      {/* ── Mute button (top-right, above score) ────────────────── */}
+      {/* ── Mute button (top-right, always visible) ──────────────────── */}
       <button
         className="mute-btn"
         onClick={sounds.toggleMute}
@@ -29,7 +29,7 @@ export default function GameUI({ store, theme, sounds }: GameUIProps) {
         {sounds.isMuted ? "🔇" : "🔊"}
       </button>
 
-      {/* ── Score (top-right) ─────────────────────────────────────── */}
+      {/* ── Score (visible while playing + game over) ─────────────────── */}
       {state.phase !== "idle" && (
         <div className="score-panel">
           <div className="score-label">SCORE</div>
@@ -39,7 +39,7 @@ export default function GameUI({ store, theme, sounds }: GameUIProps) {
         </div>
       )}
 
-      {/* ── Click to Start ────────────────────────────────────────── */}
+      {/* ── Start Screen ──────────────────────────────────────────────── */}
       {state.phase === "idle" && (
         <div className="center-overlay" onClick={startGame}>
           <h1 className="game-title">STACK TOWER</h1>
@@ -51,7 +51,7 @@ export default function GameUI({ store, theme, sounds }: GameUIProps) {
         </div>
       )}
 
-      {/* ── Game Over ─────────────────────────────────────────────── */}
+      {/* ── Game Over ─────────────────────────────────────────────────── */}
       {state.phase === "gameover" && (
         <div className="center-overlay gameover">
           <h2 className="gameover-title">GAME OVER</h2>
@@ -60,13 +60,22 @@ export default function GameUI({ store, theme, sounds }: GameUIProps) {
           {state.score > 0 && state.score >= state.bestScore && (
             <div className="new-best">🏆 New Best!</div>
           )}
-          <button className="restart-btn" onClick={resetGame}>
-            Restart
+          {/* RETRY → immediately starts a new game */}
+          <button className="restart-btn" onClick={retryGame}>
+            RETRY
+          </button>
+          {/* Secondary: go back to start screen (so user can change theme) */}
+          <button
+            className="restart-btn"
+            style={{ marginTop: 8, fontSize: "0.8em", opacity: 0.7 }}
+            onClick={resetGame}
+          >
+            Change Theme
           </button>
         </div>
       )}
 
-      {/* ── First-move hint ───────────────────────────────────────── */}
+      {/* ── First-move hint ───────────────────────────────────────────── */}
       {state.phase === "playing" && state.score === 0 && (
         <div className="hint">Click anywhere to drop</div>
       )}

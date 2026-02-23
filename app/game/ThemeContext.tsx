@@ -48,6 +48,8 @@ export interface ThemeConfig {
   useTransmission: boolean;
   /** If true, use jelly-specific bouncier spring config */
   useJelly: boolean;
+  /** If true, use glass-with-neon-edges material (neon city theme) */
+  useNeonGlass: boolean;
   /** Path to background music track */
   bgMusic: string;
 }
@@ -85,6 +87,7 @@ export const THEMES: Record<ThemeId, ThemeConfig> = {
     useClearcoat: false,
     useTransmission: false,
     useJelly: false,
+    useNeonGlass: false,
     bgMusic: "/sounds/classic.mp3",
   },
   neon: {
@@ -92,31 +95,47 @@ export const THEMES: Record<ThemeId, ThemeConfig> = {
     name: "Neon",
     emoji: "⚡",
     bgGradient: "linear-gradient(160deg, #1a0033 0%, #000010 100%)",
-    blockColor: (hue) => `hsl(${hue}, 100%, 63%)`,
-    ambientColor: "#4400cc",
-    ambientIntensity: 0.4,
-    dirLightColor: "#ff00cc",
-    dirLightIntensity: 0.9,
+    blockColor: (hue: number) => {
+      // Cyberpunk palette: hot pink, cyan, neon yellow, electric purple
+      // Use hue/25 as index so each block drop (+25) gives a new color
+      const neonPalette = [
+        "#FF10F0", // hot pink
+        "#00FFFF", // cyan
+        "#FFFF00", // neon yellow
+        "#BF00FF", // electric purple
+        "#FF10F0",
+        "#00FFFF",
+        "#FFFF00",
+        "#BF00FF",
+      ];
+      const idx = Math.round(hue / 25) % neonPalette.length;
+      return neonPalette[idx];
+    },
+    ambientColor: "#200040",
+    ambientIntensity: 0.3,
+    dirLightColor: "#ff10f0",
+    dirLightIntensity: 0.7,
     rimColor: "#00ffff",
     rimIntensity: 0.15,
-    fogColor: "#0d0020",
-    fogNear: 15,
-    fogFar: 60,
-    bloomIntensity: 2.2,
-    bloomThreshold: 0.12,
-    titleGradient: "linear-gradient(135deg, #00ffff, #ff00ff, #ffff00)",
+    fogColor: "#070010",
+    fogNear: 18,
+    fogFar: 65,
+    bloomIntensity: 2.8,
+    bloomThreshold: 0.08,
+    titleGradient: "linear-gradient(135deg, #FF10F0, #00FFFF, #FFFF00)",
     scoreColor: "#00ffff",
-    overlayBg: "rgba(10,0,30,0.65)",
-    buttonBg: "linear-gradient(135deg, #00ffff, #ff00ff)",
-    buttonText: "#000",
+    overlayBg: "rgba(5,0,20,0.75)",
+    buttonBg: "linear-gradient(135deg, #FF10F0, #BF00FF)",
+    buttonText: "#fff",
     textColor: "#00ffff",
     subtleTextColor: "rgba(0,255,255,0.5)",
     isDark: true,
-    materialRoughness: 0.12,
-    materialMetalness: 0.2,
+    materialRoughness: 0.05,
+    materialMetalness: 0.1,
     useClearcoat: false,
     useTransmission: false,
     useJelly: false,
+    useNeonGlass: true,
     bgMusic: "/sounds/neon.mp3",
   },
   ice: {
@@ -155,6 +174,7 @@ export const THEMES: Record<ThemeId, ThemeConfig> = {
     useClearcoat: false,
     useTransmission: true,
     useJelly: false,
+    useNeonGlass: false,
     bgMusic: "/sounds/ice.mp3",
   },
   jelly: {
@@ -165,9 +185,19 @@ export const THEMES: Record<ThemeId, ThemeConfig> = {
       "linear-gradient(160deg, #fff0f7 0%, #ffe4f7 20%, #f8e0ff 45%, #e0f0ff 75%, #e0fff4 100%)",
     blockColor: (hue: number) => {
       // Saturated candy colors — strawberry, grape, blueberry, mint, peach, lemon
-      const candyHues = [350, 315, 270, 170, 15, 45];
-      const idx = Math.floor((hue / 360) * candyHues.length) % candyHues.length;
-      return `hsl(${candyHues[idx]}, 98%, 60%)`;
+      // Use hue/25 as index so each block drop (+25) gives a different candy color
+      const candyPalette = [
+        "hsl(350, 98%, 60%)", // strawberry red
+        "hsl(15, 98%, 60%)",  // peach orange
+        "hsl(45, 98%, 58%)",  // lemon yellow
+        "hsl(160, 90%, 48%)", // mint green
+        "hsl(200, 95%, 60%)", // blueberry blue
+        "hsl(270, 95%, 62%)", // grape purple
+        "hsl(320, 98%, 60%)", // bubblegum pink
+        "hsl(0, 92%, 60%)",   // cherry red
+      ];
+      const idx = Math.round(hue / 25) % candyPalette.length;
+      return candyPalette[idx];
     },
     ambientColor: "#ffddee",
     ambientIntensity: 2.2,
@@ -193,6 +223,7 @@ export const THEMES: Record<ThemeId, ThemeConfig> = {
     useClearcoat: true,
     useTransmission: false,
     useJelly: true,
+    useNeonGlass: false,
     bgMusic: "/sounds/jelly_theme.mp3",
   },
 };

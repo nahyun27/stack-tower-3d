@@ -152,11 +152,52 @@ export function useSoundEffects() {
   }, []);
 
   // ── Block land ────────────────────────────────────────────────────────────
-  const playLand = useCallback((quality: LandQuality) => {
+  const playLand = useCallback((quality: LandQuality, themeId?: string) => {
     if (isMutedRef.current) return;
     try {
       const [ctx, master] = getCtx();
 
+      if (themeId === "neon") {
+        // Neon City: electronic beep sequence
+        if (quality === "perfect") {
+          // Synth FM chord — cyberpunk arpeggio
+          const notes = [261.63, 329.63, 392, 523.25]; // C major arp up
+          notes.forEach((freq, i) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = "square";
+            osc.frequency.setValueAtTime(freq, ctx.currentTime);
+            osc.frequency.setValueAtTime(freq * 2, ctx.currentTime + 0.04);
+            osc.frequency.setValueAtTime(freq, ctx.currentTime + 0.08);
+            gain.connect(master);
+            withFilter(ctx, osc, gain, 3500);
+            const t = ctx.currentTime + i * 0.06;
+            gain.gain.setValueAtTime(0, t);
+            gain.gain.linearRampToValueAtTime(0.18 / (i + 1), t + 0.01);
+            gain.gain.exponentialRampToValueAtTime(0.001, t + 0.3);
+            osc.start(t);
+            osc.stop(t + 0.35);
+          });
+        } else {
+          // Electronic beep — short square wave blip
+          const freq = quality === "good" ? 880 : 440;
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = "square";
+          osc.frequency.setValueAtTime(freq, ctx.currentTime);
+          osc.frequency.setValueAtTime(freq * 1.5, ctx.currentTime + 0.02);
+          osc.frequency.setValueAtTime(freq * 0.8, ctx.currentTime + 0.06);
+          withFilter(ctx, osc, gain, 2200);
+          gain.connect(master);
+          gain.gain.setValueAtTime(0.22, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.12);
+          osc.start();
+          osc.stop(ctx.currentTime + 0.15);
+        }
+        return;
+      }
+
+      // Default sounds for other themes
       if (quality === "perfect") {
         [800, 1200, 1600].forEach((freq, i) => {
           const osc = ctx.createOscillator();

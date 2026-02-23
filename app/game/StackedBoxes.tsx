@@ -40,7 +40,24 @@ function SingleBox({ box, isLatest, theme }: SingleBoxProps) {
       receiveShadow
     >
       <RoundedBox args={[box.width, 1, box.depth]} radius={0.1} smoothness={4}>
-        {theme.useTransmission ? (
+        {theme.useNeonGlass ? (
+          /* ⚡ Neon Glass — semi-transparent with emissive neon edge glow */
+          <meshPhysicalMaterial
+            color={color}
+            emissive={color}
+            emissiveIntensity={0.8}
+            roughness={0.05}
+            metalness={0.15}
+            transmission={0.25}
+            thickness={0.5}
+            ior={1.4}
+            clearcoat={1.0}
+            clearcoatRoughness={0.0}
+            reflectivity={0.9}
+            transparent
+            opacity={0.82}
+          />
+        ) : theme.useTransmission ? (
           /* 🧊 Ice Crystal — glass-like with transmission */
           <meshPhysicalMaterial
             color={color}

@@ -33,7 +33,7 @@ function GameApp() {
 
     // Successful block placement
     if (state.score > prevScoreRef.current) {
-      sounds.playLand(state.lastDropQuality);
+      sounds.playLand(state.lastDropQuality, theme.id);
       prevScoreRef.current = state.score;
     }
 
@@ -46,7 +46,7 @@ function GameApp() {
 
   return (
     <div
-      className="game-root"
+      className={`game-root${theme.id === "neon" ? " neon-theme" : ""}`}
       onClick={() => {
         if (store.state.phase === "idle") store.startGame();
       }}

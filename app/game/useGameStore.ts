@@ -17,8 +17,6 @@ export interface StackedBox {
   depth: number;
   /** Raw hue (0–360) — color computed at render time by theme */
   hue: number;
-  /** Pre-computed color (used by FallingPieces) */
-  color: string;
 }
 
 export interface FallingPiece {
@@ -28,7 +26,7 @@ export interface FallingPiece {
   y: number;
   width: number;
   depth: number;
-  color: string;
+  hue: number;
   velocityY: number;
   rotationSpeed: number;
 }
@@ -72,7 +70,6 @@ export function useGameStore() {
       width: INITIAL_WIDTH,
       depth: INITIAL_DEPTH,
       hue: 200,
-      color: "hsl(200, 60%, 50%)",
     };
     return {
       phase: "idle",
@@ -161,7 +158,6 @@ export function useGameStore() {
 
       const newY = top.y + BOX_HEIGHT;
       const newHue = (prev.currentHue + 25) % 360;
-      const newColor = `hsl(${newHue}, 75%, 60%)`;
 
       const newBox: StackedBox = {
         id: ++idRef.current,
@@ -171,7 +167,6 @@ export function useGameStore() {
         width: finalW,
         depth: finalD,
         hue: newHue,
-        color: newColor,
       };
 
       // ── Falling piece ─────────────────────────────────────────────────
@@ -187,7 +182,7 @@ export function useGameStore() {
             id: ++idRef.current,
             x: cutX, z: top.z, y: newY,
             width: cutDimension, depth: curDepth,
-            color: newColor, velocityY: 0,
+            hue: newHue, velocityY: 0,
             rotationSpeed: (Math.random() - 0.5) * 4,
           });
         } else {
@@ -199,7 +194,7 @@ export function useGameStore() {
             id: ++idRef.current,
             x: top.x, z: cutZ, y: newY,
             width: curWidth, depth: cutDimension,
-            color: newColor, velocityY: 0,
+            hue: newHue, velocityY: 0,
             rotationSpeed: (Math.random() - 0.5) * 4,
           });
         }
@@ -234,7 +229,15 @@ export function useGameStore() {
     });
   }, []);
 
-  return { state, startGame, dropBox, removeFallenPiece, resetGame };
+  /** Reset and immediately start playing — skips the start screen (used by RETRY). */
+  const retryGame = useCallback(() => {
+    setState((prev) => {
+      const fresh = buildInitialState();
+      return { ...fresh, bestScore: prev.bestScore, phase: "playing" };
+    });
+  }, []);
+
+  return { state, startGame, dropBox, removeFallenPiece, resetGame, retryGame };
 }
 
 export type GameStore = ReturnType<typeof useGameStore>;
