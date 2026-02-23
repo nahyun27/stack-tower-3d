@@ -2,7 +2,7 @@
 
 import { useTheme, ThemeId, THEMES } from "./ThemeContext";
 
-const THEME_ORDER: ThemeId[] = ["classic", "neon", "pastel", "jelly"];
+const THEME_ORDER: ThemeId[] = ["classic", "neon", "ice", "jelly"];
 
 /**
  * Small floating panel (top-left) with 4 theme buttons.

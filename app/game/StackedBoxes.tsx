@@ -1,8 +1,6 @@
 "use client";
 
 import { useRef } from "react";
-import { useFrame } from "@react-three/fiber";
-import * as THREE from "three";
 import { useSpring, animated } from "@react-spring/three";
 import { RoundedBox } from "@react-three/drei";
 import { StackedBox } from "./useGameStore";
@@ -16,12 +14,18 @@ interface SingleBoxProps {
 
 /** Individual box with spring bounce when it's the latest placed block. */
 function SingleBox({ box, isLatest, theme }: SingleBoxProps) {
-  // Spring squash-and-stretch: land with a slight squash, then bounce back
+  // Jelly uses a much bouncier spring — high tension, low friction
+  const springConfig = theme.useJelly
+    ? { tension: 480, friction: 10, mass: 0.5 }
+    : { tension: 260, friction: 14, mass: 0.8 };
+
   const { scaleXZ, scaleY } = useSpring({
-    from: isLatest ? { scaleXZ: 1.1, scaleY: 0.85 } : { scaleXZ: 1, scaleY: 1 },
+    from: isLatest
+      ? { scaleXZ: theme.useJelly ? 1.18 : 1.1, scaleY: theme.useJelly ? 0.75 : 0.85 }
+      : { scaleXZ: 1, scaleY: 1 },
     to: { scaleXZ: 1, scaleY: 1 },
     reset: isLatest,
-    config: { tension: 260, friction: 14, mass: 0.8 },
+    config: springConfig,
   });
 
   const color = theme.blockColor(box.hue);
@@ -35,18 +39,38 @@ function SingleBox({ box, isLatest, theme }: SingleBoxProps) {
       castShadow
       receiveShadow
     >
-      <RoundedBox args={[box.width, 1, box.depth]} radius={0.07} smoothness={3}>
-        {theme.useClearcoat ? (
+      <RoundedBox args={[box.width, 1, box.depth]} radius={0.1} smoothness={4}>
+        {theme.useTransmission ? (
+          /* 🧊 Ice Crystal — glass-like with transmission */
           <meshPhysicalMaterial
             color={color}
             roughness={0.0}
-            metalness={0.0}
+            metalness={0.05}
+            transmission={0.82}
+            thickness={1.5}
+            ior={1.5}
             clearcoat={1.0}
             clearcoatRoughness={0.0}
-            ior={1.45}
-            reflectivity={0.6}
+            reflectivity={1.0}
+            transparent
+            opacity={0.92}
+          />
+        ) : theme.useClearcoat ? (
+          /* 🍬 Jelly — thick, saturated clearcoat candy */
+          <meshPhysicalMaterial
+            color={color}
+            roughness={0.05}
+            metalness={0.0}
+            clearcoat={1.0}
+            clearcoatRoughness={0.05}
+            ior={1.6}
+            reflectivity={0.7}
+            sheen={0.4}
+            sheenRoughness={0.3}
+            sheenColor={color}
           />
         ) : (
+          /* Standard material */
           <meshStandardMaterial
             color={color}
             roughness={theme.materialRoughness}

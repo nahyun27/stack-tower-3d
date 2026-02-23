@@ -21,7 +21,7 @@ interface MovingBoxProps {
   positionRef: React.MutableRefObject<{ x: number; z: number }>;
 }
 
-// User-set values (modified from 1.4 → 0.1, 5.5 → 4.0)
+// User-set values
 const SPEED = 0.1;
 const AMPLITUDE = 4.0;
 
@@ -53,7 +53,7 @@ export default function MovingBox({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [axis, pivotX, pivotZ]);
 
-  useFrame((_, delta) => {
+  useFrame(() => {
     if (!meshRef.current || !active) return;
 
     const mesh = meshRef.current;
@@ -81,7 +81,6 @@ export default function MovingBox({
   const initZ = axis === "z" ? pivotZ - AMPLITUDE : pivotZ;
 
   const { theme } = useTheme();
-  const isJelly = theme.useClearcoat;
 
   return (
     <mesh
@@ -89,16 +88,35 @@ export default function MovingBox({
       position={[initX, topY + 0.5, initZ]}
       castShadow
     >
-      <RoundedBox args={[width, 1, depth]} radius={0.07} smoothness={3}>
-        {isJelly ? (
+      <RoundedBox args={[width, 1, depth]} radius={0.1} smoothness={4}>
+        {theme.useTransmission ? (
+          /* 🧊 Ice Crystal moving block */
           <meshPhysicalMaterial
             color={color}
             roughness={0.0}
-            metalness={0.0}
+            metalness={0.05}
+            transmission={0.82}
+            thickness={1.5}
+            ior={1.5}
             clearcoat={1.0}
             clearcoatRoughness={0.0}
-            ior={1.45}
-            reflectivity={0.6}
+            reflectivity={1.0}
+            transparent
+            opacity={0.92}
+          />
+        ) : theme.useClearcoat ? (
+          /* 🍬 Jelly moving block */
+          <meshPhysicalMaterial
+            color={color}
+            roughness={0.05}
+            metalness={0.0}
+            clearcoat={1.0}
+            clearcoatRoughness={0.05}
+            ior={1.6}
+            reflectivity={0.7}
+            sheen={0.4}
+            sheenRoughness={0.3}
+            sheenColor={color}
           />
         ) : (
           <meshStandardMaterial

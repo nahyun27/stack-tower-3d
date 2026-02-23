@@ -10,7 +10,7 @@ import {
 
 // ─── Types ─────────────────────────────────────────────────────────────────
 
-export type ThemeId = "classic" | "neon" | "pastel" | "jelly";
+export type ThemeId = "classic" | "neon" | "ice" | "jelly";
 
 export interface ThemeConfig {
   id: ThemeId;
@@ -39,11 +39,15 @@ export interface ThemeConfig {
   textColor: string;
   subtleTextColor: string;
   isDark: boolean;
-  /** Block material — roughness & metalness for non-jelly themes */
+  /** Block material — roughness & metalness for standard themes */
   materialRoughness: number;
   materialMetalness: number;
   /** If true, use clearcoat physical material for a jelly/candy look */
   useClearcoat: boolean;
+  /** If true, use transmission/glass material for ice crystal look */
+  useTransmission: boolean;
+  /** If true, use jelly-specific bouncier spring config */
+  useJelly: boolean;
   /** Path to background music track */
   bgMusic: string;
 }
@@ -79,6 +83,8 @@ export const THEMES: Record<ThemeId, ThemeConfig> = {
     materialRoughness: 0.3,
     materialMetalness: 0.18,
     useClearcoat: false,
+    useTransmission: false,
+    useJelly: false,
     bgMusic: "/sounds/classic.mp3",
   },
   neon: {
@@ -109,36 +115,46 @@ export const THEMES: Record<ThemeId, ThemeConfig> = {
     materialRoughness: 0.12,
     materialMetalness: 0.2,
     useClearcoat: false,
+    useTransmission: false,
+    useJelly: false,
     bgMusic: "/sounds/neon.mp3",
   },
-  pastel: {
-    id: "pastel",
-    name: "Pastel",
-    emoji: "🌸",
-    bgGradient: "linear-gradient(160deg, #f0e6ff 0%, #e6f0ff 100%)",
-    blockColor: (hue) => `hsl(${hue}, 45%, 76%)`,
-    ambientColor: "#fff5e6",
-    ambientIntensity: 1.0,
-    dirLightColor: "#fffacd",
-    dirLightIntensity: 0.7,
-    rimColor: "#ffb3d9",
-    rimIntensity: 0.5,
-    fogColor: "#e6f0ff",
-    fogNear: 20,
-    fogFar: 80,
-    bloomIntensity: 0.05,
-    bloomThreshold: 0.9,
-    titleGradient: "linear-gradient(135deg, #f472b6, #c084fc, #67e8f9)",
-    scoreColor: "#6b21a8",
-    overlayBg: "rgba(240,230,255,0.78)",
-    buttonBg: "linear-gradient(135deg, #f472b6, #818cf8)",
+  ice: {
+    id: "ice",
+    name: "Ice",
+    emoji: "🧊",
+    bgGradient:
+      "linear-gradient(180deg, #06102a 0%, #0a2040 35%, #083358 65%, #1463a0 88%, #d0ecff 100%)",
+    blockColor: (hue: number) => {
+      // Ice palette: vary between icy blue, cyan, white, and pale lavender
+      const iceHues = [195, 210, 185, 220, 200];
+      const idx = Math.floor((hue / 360) * iceHues.length) % iceHues.length;
+      return `hsl(${iceHues[idx]}, 65%, 88%)`;
+    },
+    ambientColor: "#b8dff4",
+    ambientIntensity: 1.3,
+    dirLightColor: "#e8f6ff",
+    dirLightIntensity: 1.5,
+    rimColor: "#70c8ff",
+    rimIntensity: 0.35,
+    fogColor: "#aad4f0",
+    fogNear: 25,
+    fogFar: 90,
+    bloomIntensity: 1.4,
+    bloomThreshold: 0.45,
+    titleGradient: "linear-gradient(135deg, #ffffff, #88d4f5, #a78bfa)",
+    scoreColor: "#38bdf8",
+    overlayBg: "rgba(6,16,42,0.78)",
+    buttonBg: "linear-gradient(135deg, #38bdf8, #818cf8)",
     buttonText: "#fff",
-    textColor: "#4c1d95",
-    subtleTextColor: "rgba(76,29,149,0.5)",
-    isDark: false,
-    materialRoughness: 0.42,
-    materialMetalness: 0.08,
+    textColor: "#e0f4ff",
+    subtleTextColor: "rgba(200,235,255,0.55)",
+    isDark: true,
+    materialRoughness: 0.0,
+    materialMetalness: 0.05,
     useClearcoat: false,
+    useTransmission: true,
+    useJelly: false,
     bgMusic: "/sounds/ice.mp3",
   },
   jelly: {
@@ -146,30 +162,37 @@ export const THEMES: Record<ThemeId, ThemeConfig> = {
     name: "Jelly",
     emoji: "🍬",
     bgGradient:
-      "linear-gradient(135deg, #ffe0f0 0%, #ffd6fa 25%, #d6e8ff 60%, #d6ffe8 100%)",
-    blockColor: (hue) => `hsl(${hue}, 90%, 67%)`,
-    ambientColor: "#fff0fa",
-    ambientIntensity: 1.4,
-    dirLightColor: "#fff8ff",
-    dirLightIntensity: 1.0,
-    rimColor: "#ff80cc",
-    rimIntensity: 0.12,
-    fogColor: "#f0e8ff",
+      "linear-gradient(160deg, #fff0f7 0%, #ffe4f7 20%, #f8e0ff 45%, #e0f0ff 75%, #e0fff4 100%)",
+    blockColor: (hue: number) => {
+      // Saturated candy colors — strawberry, grape, blueberry, mint, peach, lemon
+      const candyHues = [350, 315, 270, 170, 15, 45];
+      const idx = Math.floor((hue / 360) * candyHues.length) % candyHues.length;
+      return `hsl(${candyHues[idx]}, 98%, 60%)`;
+    },
+    ambientColor: "#ffddee",
+    ambientIntensity: 2.2,
+    dirLightColor: "#fff2ff",
+    dirLightIntensity: 1.3,
+    rimColor: "#ff55bb",
+    rimIntensity: 0.06,
+    fogColor: "#f5e8ff",
     fogNear: 30,
     fogFar: 100,
-    bloomIntensity: 0.5,
-    bloomThreshold: 0.35,
-    titleGradient: "linear-gradient(135deg, #ff6b9d, #c084fc, #38bdf8)",
-    scoreColor: "#7c3aed",
-    overlayBg: "rgba(255,240,252,0.82)",
-    buttonBg: "linear-gradient(135deg, #ff6b9d, #c084fc)",
+    bloomIntensity: 0.9,
+    bloomThreshold: 0.22,
+    titleGradient: "linear-gradient(135deg, #ff3d9a, #e040fb, #00bfff)",
+    scoreColor: "#c026d3",
+    overlayBg: "rgba(255,230,255,0.88)",
+    buttonBg: "linear-gradient(135deg, #ff3d9a, #e040fb)",
     buttonText: "#fff",
-    textColor: "#5b21b6",
-    subtleTextColor: "rgba(91,33,182,0.45)",
+    textColor: "#86198f",
+    subtleTextColor: "rgba(134,25,143,0.45)",
     isDark: false,
-    materialRoughness: 0.02,
+    materialRoughness: 0.0,
     materialMetalness: 0.0,
     useClearcoat: true,
+    useTransmission: false,
+    useJelly: true,
     bgMusic: "/sounds/jelly_theme.mp3",
   },
 };

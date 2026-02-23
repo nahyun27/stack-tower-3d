@@ -12,6 +12,7 @@ import MovingBox from "./MovingBox";
 import StackedBoxes from "./StackedBoxes";
 import FallingPieces from "./FallingPieces";
 import LandingEffects from "./LandingEffect";
+import SnowParticles from "./SnowParticles";
 
 interface StackGameProps {
   store: GameStore;
@@ -93,8 +94,16 @@ export default function StackGame({ store, theme, playDrop }: StackGameProps) {
         shadow-mapSize-width={1024}
         shadow-mapSize-height={1024}
       />
-      {/* ── Stars background (hidden in pastel theme) ───────────────── */}
-      {theme.isDark && (
+      {/* ── Aurora fill light (ice theme only) ───────────────────── */}
+      {theme.id === "ice" && (
+        <>
+          <hemisphereLight color="#00e8ff" groundColor="#4466ff" intensity={0.7} />
+          <pointLight position={[0, 30, 0]} color="#00ffcc" intensity={0.5} distance={80} />
+        </>
+      )}
+
+      {/* ── Stars background (dark themes) ─────────────────────────── */}
+      {theme.isDark && theme.id !== "ice" && (
         <Stars
           radius={120}
           depth={60}
@@ -105,6 +114,9 @@ export default function StackGame({ store, theme, playDrop }: StackGameProps) {
           speed={0.6}
         />
       )}
+
+      {/* ── Snow particles (ice theme only) ────────────────────────── */}
+      {theme.id === "ice" && <SnowParticles />}
 
       {/* ── Camera ─────────────────────────────────────────────────── */}
       <GameCamera towerHeight={towerTopY} />
