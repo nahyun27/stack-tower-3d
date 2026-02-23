@@ -1,36 +1,156 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🎮 Stack Tower 3D
 
-## Getting Started
+> **Test your timing. Build the tallest tower.**
 
-First, run the development server:
+An addictive 3D stacking game where precision matters. Click at the perfect moment to stack blocks and reach for the sky!
 
+[![Live Demo](https://img.shields.io/badge/🎮-Play%20Now-blue?style=for-the-badge)](https://stack-tower-3d.vercel.app)
+[![License](https://img.shields.io/badge/license-MIT-green?style=flat)](LICENSE)
+
+![Game Preview](public/preview.gif) *← Add screenshot/gif later*
+
+## ✨ Features
+
+- 🎯 **Precision Timing** - Click at the perfect moment to stack
+- 🌈 **Rainbow Blocks** - Beautiful color gradient as you stack higher
+- ⚡ **Physics-Based** - Realistic falling animations for missed parts
+- 📊 **Score System** - Track your best score
+- 🎨 **Minimalist Design** - Clean, distraction-free gameplay
+- 📱 **Mobile Friendly** - Play on any device
+- 🔊 **Sound Effects** - Satisfying audio feedback (coming soon)
+
+## 🎮 How to Play
+
+1. **Click/Tap** to drop the moving block
+2. **Stack perfectly** on the previous block
+3. **Build higher** - blocks get smaller if you miss
+4. **Beat your high score!**
+
+### Pro Tips
+- Perfect placement = bonus points
+- The bigger the overlap, the better
+- Camera follows your tower upward
+
+## 🛠 Tech Stack
+
+- **[Next.js 15](https://nextjs.org)** - React framework
+- **[React Three Fiber](https://docs.pmnd.rs/react-three-fiber)** - React renderer for Three.js
+- **[Three.js](https://threejs.org)** - 3D graphics library
+- **[@react-three/drei](https://github.com/pmndrs/drei)** - Useful R3F helpers
+- **[@react-spring/three](https://www.react-spring.dev/)** - Spring physics animations
+- **TypeScript** - Type safety
+- **Tailwind CSS** - Styling
+
+## 🚀 Quick Start
+
+### Prerequisites
+- Node.js 18+
+- npm or yarn
+
+### Installation
 ```bash
+# Clone the repository
+git clone https://github.com/nahyun27/stack-tower-3d.git
+cd stack-tower-3d
+
+# Install dependencies
+npm install
+
+# Run development server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) and start stacking!
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 📁 Project Structure
+```
+stack-tower-3d/
+├── app/
+│   ├── page.tsx              # Main game component
+│   ├── layout.tsx            # Root layout
+│   └── components/
+│       ├── Game.tsx          # Game logic
+│       ├── Block.tsx         # Block component
+│       ├── Tower.tsx         # Tower manager
+│       └── UI.tsx            # Score & UI
+├── public/
+│   └── sounds/               # Sound effects
+├── README.md
+└── package.json
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🎨 Game Mechanics
 
-## Learn More
+### Stacking Logic
+1. New block spawns and moves left-right
+2. Player clicks to drop the block
+3. Overlap area with previous block is calculated
+4. Overlapping part stays, rest falls off with physics
+5. Perfect placement (100% overlap) = bonus points
+6. Repeat until tower is too small
 
-To learn more about Next.js, take a look at the following resources:
+### Scoring
+- **+1 point** per successful stack
+- **+5 bonus** for perfect placement
+- **High score** saved in local storage
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 🔮 Roadmap
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- [x] Core stacking mechanics
+- [x] Physics for falling pieces
+- [x] Score system
+- [ ] Sound effects
+- [ ] Leaderboard (online)
+- [ ] Different block skins
+- [ ] Power-ups
+- [ ] Multiplayer mode
 
-## Deploy on Vercel
+## 🎯 Development Timeline
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+**Week 1: Core Game** ✅
+- Basic mechanics
+- Stacking logic
+- Visual polish
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+**Week 2: Features** 🚧
+- Sound design
+- UI improvements
+- Mobile optimization
+
+## 📸 Screenshots
+
+*Coming soon - gameplay GIFs and images*
+
+## 🐛 Known Issues
+
+- Performance may vary on older mobile devices
+- Safari may require interaction for audio
+
+## 🤝 Contributing
+
+Contributions welcome! Feel free to:
+- Report bugs
+- Suggest features
+- Submit pull requests
+
+## 📄 License
+
+MIT License - feel free to use this for learning or your own projects!
+
+## 🙏 Acknowledgments
+
+- Inspired by classic stacking games
+- Built with love using React Three Fiber
+- Thanks to the Three.js community
+
+## 👤 Author
+
+**Nahyun Kim**  
+PhD Student in Computer Science | AI Security Researcher  
+🔗 [GitHub](https://github.com/nahyun27) | 📧 ksknh7@hanyang.ac.kr
+
+---
+
+**Made with 🎮 for the joy of gaming**
+
+*Perfect timing leads to perfect towers!*
