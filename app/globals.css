@@ -1,26 +1,236 @@
-@import "tailwindcss";
-
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* ── Reset ───────────────────────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* ── Root ────────────────────────────────────────────────────────────── */
+html,
+body,
+#__next {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background: linear-gradient(160deg, #0a0a0f 0%, #000000 100%);
+  color: #fff;
+  -webkit-font-smoothing: antialiased;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* ── Game root container ─────────────────────────────────────────────── */
+.game-root {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  cursor: pointer;
+  user-select: none;
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* ── UI Overlay ──────────────────────────────────────────────────────── */
+.ui-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none; /* pass clicks through to canvas by default */
+  z-index: 10;
+}
+
+/* ── Score Panel (top-right) ─────────────────────────────────────────── */
+.score-panel {
+  position: absolute;
+  top: 24px;
+  right: 28px;
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.score-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  color: rgba(255, 255, 255, 0.45);
+  text-transform: uppercase;
+}
+
+.score-value {
+  font-size: 52px;
+  font-weight: 800;
+  line-height: 1;
+  color: #fff;
+  text-shadow: 0 0 30px rgba(100, 180, 255, 0.6);
+  letter-spacing: -2px;
+}
+
+.best-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  color: rgba(255, 255, 255, 0.3);
+  text-transform: uppercase;
+  margin-top: 6px;
+}
+
+.best-value {
+  font-size: 22px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.55);
+  letter-spacing: -0.5px;
+}
+
+/* ── Center Overlays (idle / gameover) ───────────────────────────────── */
+.center-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(4px);
+  pointer-events: all; /* these overlays capture clicks */
+  transition: opacity 0.3s ease;
+}
+
+/* ── Idle / Start screen ─────────────────────────────────────────────── */
+.game-title {
+  font-size: clamp(36px, 8vw, 72px);
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  background: linear-gradient(135deg, #64b3ff, #c084fc, #f472b6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-align: center;
+}
+
+.game-subtitle {
+  font-size: clamp(12px, 2.5vw, 18px);
+  font-weight: 600;
+  letter-spacing: 0.6em;
+  color: rgba(255, 255, 255, 0.5);
+  margin-bottom: 32px;
+}
+
+.start-prompt {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: clamp(14px, 2.2vw, 18px);
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 100px;
+  padding: 14px 30px;
+  background: rgba(255, 255, 255, 0.06);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.tap-icon {
+  font-size: 1.3em;
+  animation: bounce 1.5s ease-in-out infinite;
+}
+
+/* ── Game Over screen ────────────────────────────────────────────────── */
+.gameover {
+  gap: 6px;
+}
+
+.gameover-title {
+  font-size: clamp(32px, 7vw, 64px);
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  color: #ff6b6b;
+  text-shadow: 0 0 40px rgba(255, 107, 107, 0.5);
+}
+
+.final-score-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  color: rgba(255, 255, 255, 0.4);
+  text-transform: uppercase;
+  margin-top: 16px;
+}
+
+.final-score-value {
+  font-size: clamp(52px, 12vw, 96px);
+  font-weight: 900;
+  line-height: 1;
+  color: #fff;
+  text-shadow: 0 0 40px rgba(100, 180, 255, 0.5);
+  letter-spacing: -3px;
+}
+
+.new-best {
+  font-size: clamp(14px, 2.5vw, 20px);
+  font-weight: 700;
+  color: #ffd700;
+  text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+  animation: glow 1.5s ease-in-out infinite;
+  margin-top: 4px;
+}
+
+.restart-btn {
+  margin-top: 28px;
+  padding: 14px 48px;
+  font-size: clamp(14px, 2vw, 18px);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #000;
+  background: linear-gradient(135deg, #64b3ff, #c084fc);
+  border: none;
+  border-radius: 100px;
+  cursor: pointer;
+  pointer-events: all;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  box-shadow: 0 4px 24px rgba(100, 179, 255, 0.35);
+}
+
+.restart-btn:hover {
+  transform: scale(1.06);
+  box-shadow: 0 8px 32px rgba(100, 179, 255, 0.55);
+}
+
+.restart-btn:active {
+  transform: scale(0.97);
+}
+
+/* ── Playing hint ────────────────────────────────────────────────────── */
+.hint {
+  position: absolute;
+  bottom: 36px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 14px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.45);
+  letter-spacing: 0.05em;
+  animation: fade-hint 3s ease forwards;
+}
+
+/* ── Keyframes ───────────────────────────────────────────────────────── */
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.65; }
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-5px); }
+}
+
+@keyframes glow {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.7; }
+}
+
+@keyframes fade-hint {
+  0%   { opacity: 1; }
+  70%  { opacity: 1; }
+  100% { opacity: 0; }
 }
