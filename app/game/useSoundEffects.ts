@@ -44,6 +44,7 @@ export function useSoundEffects() {
   const isMutedRef = useRef(false);
 
   const musicRef = useRef<HTMLAudioElement | null>(null);
+  const musicGainRef = useRef<GainNode | null>(null);
   const musicSourceRef = useRef<MediaElementAudioSourceNode | null>(null);
   const musicUrlRef = useRef<string | null>(null);
 
@@ -81,43 +82,47 @@ export function useSoundEffects() {
     try {
       const [ctx, master] = getCtx();
 
-      // Stop/Fade out current music if exists
-      if (musicRef.current) {
-        const oldRef = musicRef.current;
-        const fadeOut = setInterval(() => {
-          if (oldRef.volume > 0.05) {
-            oldRef.volume -= 0.05;
-          } else {
-            oldRef.pause();
-            clearInterval(fadeOut);
-          }
-        }, 50);
+      // Fade out current music if exists
+      if (musicRef.current && musicGainRef.current) {
+        const oldAudio = musicRef.current;
+        const oldGain = musicGainRef.current;
+
+        // Smooth fade out using Web Audio API GainNode instead of HTMLAudioElement.volume
+        const t = ctx.currentTime;
+        oldGain.gain.cancelScheduledValues(t);
+        oldGain.gain.setValueAtTime(oldGain.gain.value, t);
+        oldGain.gain.linearRampToValueAtTime(0, t + 1.0); // 1-second fade out
+
+        // Actually pause the HTML audio element once the fade completes
+        setTimeout(() => {
+          oldAudio.pause();
+        }, 1100);
       }
 
       const audio = new Audio(url);
       audio.loop = true;
-      audio.volume = 0; // Start silent for fade in
+      // We don't touch audio.volume here because iOS Safari ignores it
 
-      // MediaElementSource connection
       const source = ctx.createMediaElementSource(audio);
-      source.connect(master);
-      musicSourceRef.current = source;
+      const gainNode = ctx.createGain();
+
+      // Start the gain at 0 for fade in
+      gainNode.gain.setValueAtTime(0, ctx.currentTime);
+
+      source.connect(gainNode);
+      gainNode.connect(master);
 
       audio.play().catch(() => {
         console.warn("Autoplay blocked for music");
       });
 
-      // Fade in
-      const fadeIn = setInterval(() => {
-        if (audio.volume < 0.35) {
-          audio.volume += 0.05;
-        } else {
-          audio.volume = 0.4;
-          clearInterval(fadeIn);
-        }
-      }, 50);
+      // Smooth fade in
+      const t = ctx.currentTime;
+      gainNode.gain.linearRampToValueAtTime(0.4, t + 1.5); // 1.5-second fade in
 
       musicRef.current = audio;
+      musicGainRef.current = gainNode;
+      musicSourceRef.current = source;
       musicUrlRef.current = url;
     } catch (err) {
       console.error("Error playing music:", err);
@@ -125,9 +130,26 @@ export function useSoundEffects() {
   }, []);
 
   const stopMusic = useCallback(() => {
-    if (musicRef.current) {
-      musicRef.current.pause();
+    if (musicRef.current && musicGainRef.current) {
+      const audio = musicRef.current;
+      const gain = musicGainRef.current;
+
+      const [ctx] = getCtx();
+      if (ctx) {
+        const t = ctx.currentTime;
+        gain.gain.cancelScheduledValues(t);
+        gain.gain.setValueAtTime(gain.gain.value, t);
+        gain.gain.linearRampToValueAtTime(0, t + 0.5);
+
+        setTimeout(() => {
+          audio.pause();
+        }, 600);
+      } else {
+        audio.pause();
+      }
+
       musicRef.current = null;
+      musicGainRef.current = null;
       musicUrlRef.current = null;
     }
   }, []);
