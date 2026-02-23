@@ -1,0 +1,255 @@
+"use client";
+
+import { useState, useEffect, useRef, useCallback } from "react";
+
+export type LandQuality = "perfect" | "good" | "okay";
+
+// ─── Audio context (module-level singleton) ─────────────────────────────────
+
+let _ctx: AudioContext | null = null;
+let _master: GainNode | null = null;
+
+function getCtx(): [AudioContext, GainNode] {
+  if (!_ctx) {
+    _ctx = new AudioContext();
+    _master = _ctx.createGain();
+    _master.connect(_ctx.destination);
+  }
+  if (_ctx.state === "suspended") _ctx.resume();
+  return [_ctx, _master!];
+}
+
+/**
+ * Low-pass filter wrapper — connects src → filter → dest
+ */
+function withFilter(
+  ctx: AudioContext,
+  src: AudioNode,
+  dest: AudioNode,
+  freq: number
+): AudioNode {
+  const f = ctx.createBiquadFilter();
+  f.type = "lowpass";
+  f.frequency.value = freq;
+  src.connect(f);
+  f.connect(dest);
+  return f;
+}
+
+// ─── Hook ───────────────────────────────────────────────────────────────────
+
+export function useSoundEffects() {
+  const [isMuted, setIsMuted] = useState(false);
+  // Use a ref so callbacks always see the latest mute state without re-creation
+  const isMutedRef = useRef(false);
+
+  const musicRef = useRef<HTMLAudioElement | null>(null);
+  const musicSourceRef = useRef<MediaElementAudioSourceNode | null>(null);
+  const musicUrlRef = useRef<string | null>(null);
+
+  // Restore saved mute preference
+  useEffect(() => {
+    const saved = localStorage.getItem("stack-tower-muted") === "true";
+    setIsMuted(saved);
+    isMutedRef.current = saved;
+    // Apply to master gain if context already exists
+    if (_master && _ctx) {
+      _master.gain.value = saved ? 0 : 1;
+    }
+  }, []);
+
+  const toggleMute = useCallback(() => {
+    setIsMuted((prev) => {
+      const next = !prev;
+      isMutedRef.current = next;
+      localStorage.setItem("stack-tower-muted", String(next));
+      try {
+        const [ctx, master] = getCtx();
+        const t = ctx.currentTime;
+        master.gain.cancelScheduledValues(t);
+        master.gain.setValueAtTime(master.gain.value, t);
+        master.gain.linearRampToValueAtTime(next ? 0 : 1, t + 0.2);
+      } catch { }
+      return next;
+    });
+  }, []);
+
+  // ── Music Player ──────────────────────────────────────────────────────────
+  const playMusic = useCallback((url: string) => {
+    if (musicUrlRef.current === url) return;
+
+    try {
+      const [ctx, master] = getCtx();
+
+      // Stop/Fade out current music if exists
+      if (musicRef.current) {
+        const oldRef = musicRef.current;
+        const fadeOut = setInterval(() => {
+          if (oldRef.volume > 0.05) {
+            oldRef.volume -= 0.05;
+          } else {
+            oldRef.pause();
+            clearInterval(fadeOut);
+          }
+        }, 50);
+      }
+
+      const audio = new Audio(url);
+      audio.loop = true;
+      audio.volume = 0; // Start silent for fade in
+
+      // MediaElementSource connection
+      const source = ctx.createMediaElementSource(audio);
+      source.connect(master);
+      musicSourceRef.current = source;
+
+      audio.play().catch(() => {
+        console.warn("Autoplay blocked for music");
+      });
+
+      // Fade in
+      const fadeIn = setInterval(() => {
+        if (audio.volume < 0.35) {
+          audio.volume += 0.05;
+        } else {
+          audio.volume = 0.4;
+          clearInterval(fadeIn);
+        }
+      }, 50);
+
+      musicRef.current = audio;
+      musicUrlRef.current = url;
+    } catch (err) {
+      console.error("Error playing music:", err);
+    }
+  }, []);
+
+  const stopMusic = useCallback(() => {
+    if (musicRef.current) {
+      musicRef.current.pause();
+      musicRef.current = null;
+      musicUrlRef.current = null;
+    }
+  }, []);
+
+  // ── Drop click ────────────────────────────────────────────────────────────
+  const playDrop = useCallback(() => {
+    if (isMutedRef.current) return;
+    try {
+      const [ctx, master] = getCtx();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "sine";
+      osc.connect(gain);
+      gain.connect(master);
+      osc.frequency.setValueAtTime(600, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(300, ctx.currentTime + 0.1);
+      gain.gain.setValueAtTime(0.35, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.1);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.12);
+    } catch { }
+  }, []);
+
+  // ── Block land ────────────────────────────────────────────────────────────
+  const playLand = useCallback((quality: LandQuality) => {
+    if (isMutedRef.current) return;
+    try {
+      const [ctx, master] = getCtx();
+
+      if (quality === "perfect") {
+        [800, 1200, 1600].forEach((freq, i) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = "sine";
+          osc.frequency.value = freq;
+          withFilter(ctx, osc, gain, 3000);
+          gain.connect(master);
+          const t = ctx.currentTime + i * 0.045;
+          gain.gain.setValueAtTime(0, t);
+          gain.gain.linearRampToValueAtTime(0.22 / (i + 1), t + 0.02);
+          gain.gain.exponentialRampToValueAtTime(0.001, t + 0.4);
+          osc.start(t);
+          osc.stop(t + 0.45);
+        });
+      } else {
+        const freq = quality === "good" ? 500 : 190;
+        const dur = quality === "good" ? 0.22 : 0.16;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = quality === "good" ? "sine" : "triangle";
+        osc.frequency.value = freq;
+        withFilter(ctx, osc, gain, quality === "good" ? 1200 : 600);
+        gain.connect(master);
+        gain.gain.setValueAtTime(0.28, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur);
+        osc.start();
+        osc.stop(ctx.currentTime + dur + 0.05);
+      }
+    } catch { }
+  }, []);
+
+  // ── Falling piece whoosh ──────────────────────────────────────────────────
+  const playFall = useCallback(() => {
+    if (isMutedRef.current) return;
+    try {
+      const [ctx, master] = getCtx();
+      const bufLen = Math.floor(ctx.sampleRate * 0.5);
+      const buf = ctx.createBuffer(1, bufLen, ctx.sampleRate);
+      const data = buf.getChannelData(0);
+      for (let i = 0; i < bufLen; i++) data[i] = Math.random() * 2 - 1;
+
+      const src = ctx.createBufferSource();
+      src.buffer = buf;
+
+      const filter = ctx.createBiquadFilter();
+      filter.type = "bandpass";
+      filter.frequency.setValueAtTime(1800, ctx.currentTime);
+      filter.frequency.exponentialRampToValueAtTime(280, ctx.currentTime + 0.5);
+
+      const gain = ctx.createGain();
+      gain.gain.setValueAtTime(0.1, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
+
+      src.connect(filter);
+      filter.connect(gain);
+      gain.connect(master);
+      src.start();
+    } catch { }
+  }, []);
+
+  // ── Game over descending trombone-ish ─────────────────────────────────────
+  const playGameOver = useCallback(() => {
+    if (isMutedRef.current) return;
+    try {
+      const [ctx, master] = getCtx();
+      [440, 350, 280, 210].forEach((freq, i) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = "sawtooth";
+        osc.frequency.value = freq;
+        withFilter(ctx, osc, gain, 800);
+        gain.connect(master);
+        const t = ctx.currentTime + i * 0.24;
+        gain.gain.setValueAtTime(0, t);
+        gain.gain.linearRampToValueAtTime(0.22, t + 0.04);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.28);
+        osc.start(t);
+        osc.stop(t + 0.32);
+      });
+    } catch { }
+  }, []);
+
+  return {
+    isMuted,
+    toggleMute,
+    playDrop,
+    playLand,
+    playFall,
+    playGameOver,
+    playMusic,
+    stopMusic,
+  };
+}
+
+export type SoundEffects = ReturnType<typeof useSoundEffects>;

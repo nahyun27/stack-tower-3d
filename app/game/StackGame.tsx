@@ -16,11 +16,12 @@ import LandingEffects from "./LandingEffect";
 interface StackGameProps {
   store: GameStore;
   theme: ThemeConfig;
+  playDrop: () => void;
 }
 
 let effectIdCounter = 2000;
 
-export default function StackGame({ store, theme }: StackGameProps) {
+export default function StackGame({ store, theme, playDrop }: StackGameProps) {
   const { state, dropBox, removeFallenPiece } = store;
 
   // Live world position of the oscillating box (updated every frame by MovingBox)
@@ -70,9 +71,10 @@ export default function StackGame({ store, theme }: StackGameProps) {
 
   const handleClick = useCallback(() => {
     if (state.phase === "playing") {
+      playDrop();
       dropBox(positionRef.current.x, positionRef.current.z);
     }
-  }, [state.phase, dropBox]);
+  }, [state.phase, dropBox, playDrop]);
 
   return (
     <Canvas
@@ -91,12 +93,6 @@ export default function StackGame({ store, theme }: StackGameProps) {
         shadow-mapSize-width={1024}
         shadow-mapSize-height={1024}
       />
-      <pointLight
-        position={[-5, 5, -5]}
-        color={theme.rimColor}
-        intensity={theme.rimIntensity}
-      />
-
       {/* ── Stars background (hidden in pastel theme) ───────────────── */}
       {theme.isDark && (
         <Stars

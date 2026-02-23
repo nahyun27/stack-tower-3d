@@ -36,11 +36,23 @@ function SingleBox({ box, isLatest, theme }: SingleBoxProps) {
       receiveShadow
     >
       <RoundedBox args={[box.width, 1, box.depth]} radius={0.07} smoothness={3}>
-        <meshStandardMaterial
-          color={color}
-          roughness={0.35}
-          metalness={0.22}
-        />
+        {theme.useClearcoat ? (
+          <meshPhysicalMaterial
+            color={color}
+            roughness={0.0}
+            metalness={0.0}
+            clearcoat={1.0}
+            clearcoatRoughness={0.0}
+            ior={1.45}
+            reflectivity={0.6}
+          />
+        ) : (
+          <meshStandardMaterial
+            color={color}
+            roughness={theme.materialRoughness}
+            metalness={theme.materialMetalness}
+          />
+        )}
       </RoundedBox>
     </animated.mesh>
   );

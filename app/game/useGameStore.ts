@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useRef } from "react";
+import { LandQuality } from "./useSoundEffects";
 
 // ─── Types ─────────────────────────────────────────────────────────────────
 
@@ -44,6 +45,8 @@ export interface GameState {
   currentAxis: MoveAxis;
   /** True if the last drop was a perfect (100%) overlap */
   lastDropPerfect: boolean;
+  /** Quality grade of the last successful drop (for sound selection) */
+  lastDropQuality: LandQuality;
 }
 
 // ─── Constants ──────────────────────────────────────────────────────────────
@@ -82,6 +85,7 @@ export function useGameStore() {
       currentBoxDepth: INITIAL_DEPTH,
       currentAxis: "x",
       lastDropPerfect: false,
+      lastDropQuality: "good",
     };
   }
 
@@ -145,8 +149,10 @@ export function useGameStore() {
         };
       }
 
-      // ── Perfect detection ─────────────────────────────────────────────
+      // ── Perfect detection & quality ──────────────────────────────────
       const isPerfect = cutDimension < PERFECT_THRESHOLD;
+      const overlapRatio = axis === "x" ? overlapX / curWidth : overlapZ / curDepth;
+      const quality: LandQuality = isPerfect ? "perfect" : overlapRatio >= 0.72 ? "good" : "okay";
       // If perfect, snap exactly to center of previous box
       const finalX = isPerfect ? top.x : placedX;
       const finalZ = isPerfect ? top.z : placedZ;
@@ -209,6 +215,7 @@ export function useGameStore() {
         currentBoxDepth: finalD,
         currentAxis: axis === "x" ? "z" : "x",
         lastDropPerfect: isPerfect,
+        lastDropQuality: quality,
       };
     });
   }, []);

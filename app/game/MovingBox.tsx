@@ -3,7 +3,9 @@
 import { useRef, useEffect } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
+import { RoundedBox } from "@react-three/drei";
 import { MoveAxis } from "./useGameStore";
+import { useTheme } from "./ThemeContext";
 
 interface MovingBoxProps {
   width: number;
@@ -78,14 +80,34 @@ export default function MovingBox({
   const initX = axis === "x" ? pivotX - AMPLITUDE : pivotX;
   const initZ = axis === "z" ? pivotZ - AMPLITUDE : pivotZ;
 
+  const { theme } = useTheme();
+  const isJelly = theme.useClearcoat;
+
   return (
     <mesh
       ref={meshRef}
       position={[initX, topY + 0.5, initZ]}
       castShadow
     >
-      <boxGeometry args={[width, 1, depth]} />
-      <meshStandardMaterial color={color} roughness={0.28} metalness={0.2} />
+      <RoundedBox args={[width, 1, depth]} radius={0.07} smoothness={3}>
+        {isJelly ? (
+          <meshPhysicalMaterial
+            color={color}
+            roughness={0.0}
+            metalness={0.0}
+            clearcoat={1.0}
+            clearcoatRoughness={0.0}
+            ior={1.45}
+            reflectivity={0.6}
+          />
+        ) : (
+          <meshStandardMaterial
+            color={color}
+            roughness={theme.materialRoughness}
+            metalness={theme.materialMetalness}
+          />
+        )}
+      </RoundedBox>
     </mesh>
   );
 }

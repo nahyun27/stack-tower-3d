@@ -100,10 +100,41 @@ body,
   text-transform: uppercase;
 }
 
+/* ── Mute Button ─────────────────────────────────────────────────────── */
+.mute-btn {
+  position: absolute;
+  top: 18px;
+  right: 28px;
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  width: 38px;
+  height: 38px;
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: all;
+  transition: transform 0.15s ease, background 0.15s ease;
+  color: inherit;
+  line-height: 1;
+}
+
+.mute-btn:hover {
+  transform: scale(1.1);
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.mute-btn:active {
+  transform: scale(0.95);
+}
+
 /* ── Score Panel ─────────────────────────────────────────────────────── */
 .score-panel {
   position: absolute;
-  top: 24px;
+  top: 70px;
   right: 28px;
   text-align: right;
   display: flex;

@@ -2,20 +2,32 @@
 
 import { GameStore } from "./useGameStore";
 import { ThemeConfig } from "./ThemeContext";
+import { SoundEffects } from "./useSoundEffects";
 import ThemeSwitcher from "./ThemeSwitcher";
 
 interface GameUIProps {
   store: GameStore;
   theme: ThemeConfig;
+  sounds: SoundEffects;
 }
 
-export default function GameUI({ store, theme }: GameUIProps) {
+export default function GameUI({ store, theme, sounds }: GameUIProps) {
   const { state, startGame, resetGame } = store;
 
   return (
     <div className="ui-overlay">
       {/* ── Theme Switcher (top-left, always visible) ─────────────── */}
       <ThemeSwitcher />
+
+      {/* ── Mute button (top-right, above score) ────────────────── */}
+      <button
+        className="mute-btn"
+        onClick={sounds.toggleMute}
+        aria-label={sounds.isMuted ? "Unmute" : "Mute"}
+        title={sounds.isMuted ? "Unmute" : "Mute"}
+      >
+        {sounds.isMuted ? "🔇" : "🔊"}
+      </button>
 
       {/* ── Score (top-right) ─────────────────────────────────────── */}
       {state.phase !== "idle" && (

@@ -10,7 +10,7 @@ import {
 
 // ─── Types ─────────────────────────────────────────────────────────────────
 
-export type ThemeId = "classic" | "neon" | "pastel" | "dark";
+export type ThemeId = "classic" | "neon" | "pastel" | "jelly";
 
 export interface ThemeConfig {
   id: ThemeId;
@@ -39,6 +39,13 @@ export interface ThemeConfig {
   textColor: string;
   subtleTextColor: string;
   isDark: boolean;
+  /** Block material — roughness & metalness for non-jelly themes */
+  materialRoughness: number;
+  materialMetalness: number;
+  /** If true, use clearcoat physical material for a jelly/candy look */
+  useClearcoat: boolean;
+  /** Path to background music track */
+  bgMusic: string;
 }
 
 // ─── Theme definitions ──────────────────────────────────────────────────────
@@ -69,6 +76,10 @@ export const THEMES: Record<ThemeId, ThemeConfig> = {
     textColor: "#fff",
     subtleTextColor: "rgba(255,255,255,0.45)",
     isDark: true,
+    materialRoughness: 0.3,
+    materialMetalness: 0.18,
+    useClearcoat: false,
+    bgMusic: "/sounds/classic.mp3",
   },
   neon: {
     id: "neon",
@@ -81,7 +92,7 @@ export const THEMES: Record<ThemeId, ThemeConfig> = {
     dirLightColor: "#ff00cc",
     dirLightIntensity: 0.9,
     rimColor: "#00ffff",
-    rimIntensity: 1.0,
+    rimIntensity: 0.15,
     fogColor: "#0d0020",
     fogNear: 15,
     fogFar: 60,
@@ -95,6 +106,10 @@ export const THEMES: Record<ThemeId, ThemeConfig> = {
     textColor: "#00ffff",
     subtleTextColor: "rgba(0,255,255,0.5)",
     isDark: true,
+    materialRoughness: 0.12,
+    materialMetalness: 0.2,
+    useClearcoat: false,
+    bgMusic: "/sounds/neon.mp3",
   },
   pastel: {
     id: "pastel",
@@ -121,32 +136,41 @@ export const THEMES: Record<ThemeId, ThemeConfig> = {
     textColor: "#4c1d95",
     subtleTextColor: "rgba(76,29,149,0.5)",
     isDark: false,
+    materialRoughness: 0.42,
+    materialMetalness: 0.08,
+    useClearcoat: false,
+    bgMusic: "/sounds/ice.mp3",
   },
-  dark: {
-    id: "dark",
-    name: "Dark",
-    emoji: "🖤",
-    bgGradient: "#000000",
-    blockColor: (hue) => `hsl(${hue}, 6%, ${30 + ((hue / 25) % 3) * 8}%)`,
-    ambientColor: "#111111",
-    ambientIntensity: 0.25,
-    dirLightColor: "#ffffff",
+  jelly: {
+    id: "jelly",
+    name: "Jelly",
+    emoji: "🍬",
+    bgGradient:
+      "linear-gradient(135deg, #ffe0f0 0%, #ffd6fa 25%, #d6e8ff 60%, #d6ffe8 100%)",
+    blockColor: (hue) => `hsl(${hue}, 90%, 67%)`,
+    ambientColor: "#fff0fa",
+    ambientIntensity: 1.4,
+    dirLightColor: "#fff8ff",
     dirLightIntensity: 1.0,
-    rimColor: "#ff2222",
-    rimIntensity: 0.8,
-    fogColor: "#000000",
-    fogNear: 12,
-    fogFar: 50,
-    bloomIntensity: 0.9,
+    rimColor: "#ff80cc",
+    rimIntensity: 0.12,
+    fogColor: "#f0e8ff",
+    fogNear: 30,
+    fogFar: 100,
+    bloomIntensity: 0.5,
     bloomThreshold: 0.35,
-    titleGradient: "linear-gradient(135deg, #ffffff, #ff4444)",
-    scoreColor: "#ffffff",
-    overlayBg: "rgba(0,0,0,0.78)",
-    buttonBg: "linear-gradient(135deg, #ff3333, #991111)",
-    buttonText: "#ffffff",
-    textColor: "#ffffff",
-    subtleTextColor: "rgba(255,255,255,0.35)",
-    isDark: true,
+    titleGradient: "linear-gradient(135deg, #ff6b9d, #c084fc, #38bdf8)",
+    scoreColor: "#7c3aed",
+    overlayBg: "rgba(255,240,252,0.82)",
+    buttonBg: "linear-gradient(135deg, #ff6b9d, #c084fc)",
+    buttonText: "#fff",
+    textColor: "#5b21b6",
+    subtleTextColor: "rgba(91,33,182,0.45)",
+    isDark: false,
+    materialRoughness: 0.02,
+    materialMetalness: 0.0,
+    useClearcoat: true,
+    bgMusic: "/sounds/jelly_theme.mp3",
   },
 };
 
