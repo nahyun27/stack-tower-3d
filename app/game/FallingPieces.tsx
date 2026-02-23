@@ -33,6 +33,14 @@ function FallingPieceMesh({ piece, onRemove, theme }: FallingPieceProps) {
     meshRef.current.rotation.x += piece.rotationSpeed * delta;
     meshRef.current.rotation.z += piece.rotationSpeed * 0.7 * delta;
 
+    // Jelly specific animation
+    if (theme.id === "jelly") {
+      const time = _.clock.getElapsedTime();
+      meshRef.current.scale.x = 1 + Math.sin(time * 20) * 0.1;
+      meshRef.current.scale.z = 1 + Math.cos(time * 20) * 0.1;
+      meshRef.current.rotation.y += delta * 10;
+    }
+
     // Remove when off screen
     if (meshRef.current.position.y < REMOVE_Y) {
       removed.current = true;
@@ -75,7 +83,7 @@ function FallingPieceMesh({ piece, onRemove, theme }: FallingPieceProps) {
       position={[piece.x, piece.y, piece.z]}
       castShadow
     >
-      <RoundedBox args={[piece.width, 1, piece.depth]} radius={0.06} smoothness={3}>
+      <RoundedBox args={[piece.width, 1, piece.depth]} radius={theme.id === "jelly" ? 0.15 : 0.06} smoothness={theme.id === "jelly" ? 5 : 3}>
         {theme.useNeonGlass ? (
           <meshPhysicalMaterial
             color={color}
@@ -85,6 +93,16 @@ function FallingPieceMesh({ piece, onRemove, theme }: FallingPieceProps) {
             metalness={0.1}
             transparent
             opacity={0.75}
+          />
+        ) : theme.id === "jelly" ? (
+          <meshPhysicalMaterial
+            color={color}
+            roughness={0.05}
+            metalness={0.1}
+            transparent
+            opacity={0.4}
+            transmission={0.6}
+            thickness={1}
           />
         ) : theme.useIceCrystal ? (
           <meshPhysicalMaterial

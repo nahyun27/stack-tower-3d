@@ -1,10 +1,9 @@
-"use client";
-
 import { useRef } from "react";
-import { useSpring, animated } from "@react-spring/three";
+import { useFrame } from "@react-three/fiber";
+import * as THREE from "three";
 import { RoundedBox } from "@react-three/drei";
-import { StackedBox } from "./useGameStore";
 import { ThemeConfig } from "./ThemeContext";
+import { StackedBox } from "./useGameStore";
 
 interface SingleBoxProps {
   box: StackedBox;
@@ -12,114 +11,114 @@ interface SingleBoxProps {
   theme: ThemeConfig;
 }
 
-/** Individual box with spring bounce when it's the latest placed block. */
 function SingleBox({ box, isLatest, theme }: SingleBoxProps) {
-  // Jelly uses a much bouncier spring — high tension, low friction
-  const springConfig = theme.useJelly
-    ? { tension: 480, friction: 10, mass: 0.5 }
-    : { tension: 260, friction: 14, mass: 0.8 };
+  const meshRef = useRef<THREE.Mesh>(null);
+  const color = theme.blockColor(box.hue);
+  const isJelly = theme.useJelly;
+  const landTime = useRef(0);
 
-  const { scaleXZ, scaleY } = useSpring({
-    from: isLatest
-      ? { scaleXZ: theme.useJelly ? 1.18 : 1.1, scaleY: theme.useJelly ? 0.75 : 0.85 }
-      : { scaleXZ: 1, scaleY: 1 },
-    to: { scaleXZ: 1, scaleY: 1 },
-    reset: isLatest,
-    config: springConfig,
+  useFrame((state, delta) => {
+    if (!meshRef.current || !isJelly) return;
+    const time = state.clock.getElapsedTime();
+
+    // Idle subtle wobble
+    const idleScale = 1 + Math.sin(time * 2 + box.id) * 0.015;
+    meshRef.current.scale.x = idleScale;
+    meshRef.current.scale.z = idleScale;
+
+    // Landing bounce ONLY for the latest box
+    if (isLatest) {
+      landTime.current += delta;
+      const bounceDur = 0.6;
+      if (landTime.current < bounceDur) {
+        const t = landTime.current / bounceDur;
+        const bounce = Math.sin(t * Math.PI * 4) * Math.exp(-t * 5) * 0.1;
+        meshRef.current.scale.y = 1 - bounce;
+        meshRef.current.position.y = box.y + 0.5 - bounce * 0.5;
+      } else {
+        meshRef.current.scale.y = 1;
+        meshRef.current.position.y = box.y + 0.5;
+      }
+    }
   });
 
-  const color = theme.blockColor(box.hue);
-
   return (
-    <animated.mesh
-      position={[box.x, box.y, box.z]}
-      scale-x={scaleXZ}
-      scale-y={scaleY}
-      scale-z={scaleXZ}
+    <mesh
+      ref={meshRef}
+      position={[box.x, box.y + 0.5, box.z]}
       castShadow
       receiveShadow
     >
-      <RoundedBox args={[box.width, 1, box.depth]} radius={0.1} smoothness={4}>
+      <RoundedBox args={[box.width, 1, box.depth]} radius={isJelly ? 0.15 : (box as any).radius || 0.06} smoothness={isJelly ? 5 : 3}>
         {theme.useNeonGlass ? (
-          /* ⚡ Neon Glass — semi-transparent with emissive neon edge glow */
           <meshPhysicalMaterial
             color={color}
             emissive={color}
-            emissiveIntensity={0.8}
+            emissiveIntensity={0.5}
             roughness={0.05}
-            metalness={0.15}
-            transmission={0.25}
-            thickness={0.5}
-            ior={1.4}
-            clearcoat={1.0}
-            clearcoatRoughness={0.0}
-            reflectivity={0.9}
+            metalness={0.1}
             transparent
-            opacity={0.82}
+            opacity={0.75}
+          />
+        ) : isJelly ? (
+          <meshPhysicalMaterial
+            color={color}
+            roughness={0.05}
+            metalness={0.1}
+            transparent
+            opacity={0.4}
+            transmission={0.6}
+            thickness={1}
           />
         ) : theme.useIceCrystal ? (
-          /* 🧊 Ice Crystal — refractive, transparent ice */
           <meshPhysicalMaterial
             color={color}
             roughness={0.1}
             metalness={0.3}
             transmission={0.8}
-            thickness={2.0}
-            ior={1.31}
-            clearcoat={1.0}
-            clearcoatRoughness={0.1}
-            reflectivity={0.8}
             transparent
             opacity={0.6}
-            attenuationDistance={0.5}
-            attenuationColor={color}
+            thickness={1}
           />
         ) : theme.useClearcoat ? (
-          /* 🍬 Jelly — thick, saturated clearcoat candy */
           <meshPhysicalMaterial
             color={color}
             roughness={0.05}
             metalness={0.0}
-            clearcoat={1.0}
-            clearcoatRoughness={0.05}
-            ior={1.6}
-            reflectivity={0.7}
-            sheen={0.4}
-            sheenRoughness={0.3}
-            sheenColor={color}
+            clearcoat={0.8}
+            clearcoatRoughness={0.1}
+            transparent
+            opacity={0.88}
           />
         ) : (
-          /* Standard material */
           <meshStandardMaterial
             color={color}
             roughness={theme.materialRoughness}
             metalness={theme.materialMetalness}
+            transparent
+            opacity={0.9}
           />
         )}
       </RoundedBox>
-    </animated.mesh>
+    </mesh>
   );
 }
 
 interface StackedBoxesProps {
   boxes: StackedBox[];
-  latestBoxId: number | null;
   theme: ThemeConfig;
+  latestBoxId?: number;
 }
 
-export default function StackedBoxes({
-  boxes,
-  latestBoxId,
-  theme,
-}: StackedBoxesProps) {
+export default function StackedBoxes({ boxes, theme, latestBoxId }: StackedBoxesProps) {
   return (
     <>
       {boxes.map((box) => (
         <SingleBox
           key={box.id}
           box={box}
-          isLatest={box.id === latestBoxId}
           theme={theme}
+          isLatest={box.id === latestBoxId}
         />
       ))}
     </>

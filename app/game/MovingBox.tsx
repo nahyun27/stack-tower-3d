@@ -18,77 +18,112 @@ interface MovingBoxProps {
   pivotX: number;
   /** Center Z of the previous (top) stacked box — oscillate around this */
   pivotZ: number;
-  positionRef: React.MutableRefObject<{ x: number; z: number }>;
+  positionRef?: React.MutableRefObject<[number, number, number]>;
+  landed?: boolean;
 }
 
 // User-set values
 const SPEED = 0.1;
 const AMPLITUDE = 4.0;
 
-export default function MovingBox({
-  width,
-  depth,
-  topY,
-  color,
-  active,
-  axis,
-  pivotX,
-  pivotZ,
-  positionRef,
-}: MovingBoxProps) {
+export default function MovingBox({ width, depth, topY, color, axis, pivotX, pivotZ, active, positionRef, landed }: MovingBoxProps) {
   const meshRef = useRef<THREE.Mesh>(null);
   const dirRef = useRef(1);
+  const { theme } = useTheme();
+
+  // Spring for landing squish
+  const landTime = useRef(0);
+  const isJelly = theme.useJelly;
 
   // Reset direction and sync positionRef when pivot/axis changes
   useEffect(() => {
     if (!meshRef.current) return;
     dirRef.current = 1;
+    const initialOffset = AMPLITUDE; // Assuming initial position is at one end of the amplitude
     if (axis === "x") {
-      meshRef.current.position.set(pivotX - AMPLITUDE, topY + 0.5, pivotZ);
-      positionRef.current = { x: pivotX - AMPLITUDE, z: pivotZ };
+      meshRef.current.position.set(pivotX - initialOffset, topY + 0.5, pivotZ);
+      if (positionRef) positionRef.current = [pivotX - initialOffset, topY + 0.5, pivotZ];
     } else {
-      meshRef.current.position.set(pivotX, topY + 0.5, pivotZ - AMPLITUDE);
-      positionRef.current = { x: pivotX, z: pivotZ - AMPLITUDE };
+      meshRef.current.position.set(pivotX, topY + 0.5, pivotZ - initialOffset);
+      if (positionRef) positionRef.current = [pivotX, topY + 0.5, pivotZ - initialOffset];
     }
+    // Reset landTime when a new box is activated
+    landTime.current = 0;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [axis, pivotX, pivotZ]);
 
-  useFrame(() => {
-    if (!meshRef.current || !active) return;
+  useFrame(({ clock }, delta) => {
+    if (!meshRef.current) return;
 
     const mesh = meshRef.current;
 
-    if (axis === "x") {
-      let newX = mesh.position.x + dirRef.current * SPEED;
-      if (newX > pivotX + AMPLITUDE) { newX = pivotX + AMPLITUDE; dirRef.current = -1; }
-      if (newX < pivotX - AMPLITUDE) { newX = pivotX - AMPLITUDE; dirRef.current = 1; }
-      mesh.position.x = newX;
-      mesh.position.z = pivotZ;
-      positionRef.current.x = newX;
-      positionRef.current.z = pivotZ;
+    // ── Moving Logic ────────────────────────────────────────────────────────
+    if (active) {
+      if (axis === "x") {
+        let newX = mesh.position.x + dirRef.current * SPEED;
+        if (newX > pivotX + AMPLITUDE) { newX = pivotX + AMPLITUDE; dirRef.current = -1; }
+        if (newX < pivotX - AMPLITUDE) { newX = pivotX - AMPLITUDE; dirRef.current = 1; }
+        mesh.position.x = newX;
+        mesh.position.z = pivotZ;
+        if (positionRef) positionRef.current = [newX, topY + 0.5, pivotZ];
+      } else {
+        let newZ = mesh.position.z + dirRef.current * SPEED;
+        if (newZ > pivotZ + AMPLITUDE) { newZ = pivotZ + AMPLITUDE; dirRef.current = -1; }
+        if (newZ < pivotZ - AMPLITUDE) { newZ = pivotZ - AMPLITUDE; dirRef.current = 1; }
+        mesh.position.x = pivotX;
+        mesh.position.z = newZ;
+        if (positionRef) positionRef.current = [pivotX, topY + 0.5, newZ];
+      }
     } else {
-      let newZ = mesh.position.z + dirRef.current * SPEED;
-      if (newZ > pivotZ + AMPLITUDE) { newZ = pivotZ + AMPLITUDE; dirRef.current = -1; }
-      if (newZ < pivotZ - AMPLITUDE) { newZ = pivotZ - AMPLITUDE; dirRef.current = 1; }
+      // If not active, ensure it's at the pivot point for the next box
       mesh.position.x = pivotX;
-      mesh.position.z = newZ;
-      positionRef.current.x = pivotX;
-      positionRef.current.z = newZ;
+      mesh.position.z = pivotZ;
+      if (positionRef) positionRef.current = [pivotX, topY + 0.5, pivotZ];
+    }
+
+    // ── Jelly Wobble ────────────────────────────────────────────────────────
+    if (isJelly) {
+      const time = clock.getElapsedTime();
+
+      // Idle subtle jiggle
+      const idleScale = 1 + Math.sin(time * 10) * 0.01;
+      mesh.scale.x = idleScale;
+      mesh.scale.z = idleScale;
+
+      // Landing squish (tension 300, friction 10 -> manual math or simple sine decay)
+      // If landed is true, we trigger a bounce
+      if (landed) {
+        landTime.current += delta;
+        const bounceDur = 0.6;
+        if (landTime.current < bounceDur) {
+          const t = landTime.current / bounceDur;
+          // Squish down then spring up
+          const bounce = Math.sin(t * Math.PI * 4) * Math.exp(-t * 5) * 0.1;
+          mesh.scale.y = 1 - bounce;
+          mesh.position.y = (topY + 0.5) - bounce * 0.5;
+        } else {
+          mesh.scale.y = 1;
+          mesh.position.y = topY + 0.5;
+        }
+      } else {
+        // Reset scale if not landed and not active (e.g., if it fell off)
+        if (!active && !landed) {
+          mesh.scale.set(1, 1, 1);
+        }
+      }
     }
   });
 
   const initX = axis === "x" ? pivotX - AMPLITUDE : pivotX;
   const initZ = axis === "z" ? pivotZ - AMPLITUDE : pivotZ;
 
-  const { theme } = useTheme();
+  // The initial position is set in useEffect, but we need a default for the first render
+  // This will be immediately overwritten by useEffect
+  const initialPosition = [initX, topY + 0.5, initZ] as [number, number, number];
 
   return (
-    <mesh
-      ref={meshRef}
-      position={[initX, topY + 0.5, initZ]}
-      castShadow
-    >
-      <RoundedBox args={[width, 1, depth]} radius={0.1} smoothness={4}>
+    <mesh ref={meshRef} castShadow position={initialPosition}>
+      <RoundedBox args={[width, 1, depth]} radius={isJelly ? 0.15 : 0.06} smoothness={isJelly ? 5 : 3}>
         {theme.useNeonGlass ? (
           /* ⚡ Neon Glass */
           <meshPhysicalMaterial
@@ -105,6 +140,17 @@ export default function MovingBox({
             reflectivity={0.9}
             transparent
             opacity={0.82}
+          />
+        ) : isJelly ? (
+          /* 🍬 Jelly moving block */
+          <meshPhysicalMaterial
+            color={color}
+            roughness={0.05}
+            metalness={0.1} // Some slight specular
+            transparent
+            opacity={0.4}
+            transmission={0.6}
+            thickness={1}
           />
         ) : theme.useIceCrystal ? (
           /* 🧊 Ice Crystal */

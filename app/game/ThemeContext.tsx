@@ -206,48 +206,44 @@ export const THEMES: Record<ThemeId, ThemeConfig> = {
     id: "jelly",
     name: "Jelly",
     emoji: "🍬",
-    bgGradient:
-      "linear-gradient(160deg, #fff0f7 0%, #ffe4f7 20%, #f8e0ff 45%, #e0f0ff 75%, #e0fff4 100%)",
+    bgGradient: "linear-gradient(180deg, #E6E6FA 0%, #E0FFE0 50%, #FFE4E1 100%)",
     blockColor: (hue: number) => {
-      // Saturated candy colors — strawberry, grape, blueberry, mint, peach, lemon
-      // Use hue/25 as index so each block drop (+25) gives a different candy color
-      const candyPalette = [
-        "hsl(350, 98%, 60%)", // strawberry red
-        "hsl(15, 98%, 60%)",  // peach orange
-        "hsl(45, 98%, 58%)",  // lemon yellow
-        "hsl(160, 90%, 48%)", // mint green
-        "hsl(200, 95%, 60%)", // blueberry blue
-        "hsl(270, 95%, 62%)", // grape purple
-        "hsl(320, 98%, 60%)", // bubblegum pink
-        "hsl(0, 92%, 60%)",   // cherry red
+      const jellyPalette = [
+        "#FFB6C1", // Strawberry
+        "#FFDAB9", // Orange
+        "#FFFACD", // Lemon
+        "#E0FFE0", // Lime
+        "#B0E0E6", // Blueberry
+        "#E6E6FA", // Grape
+        "#FFDAB9", // Peach
+        "#FFB6D9", // Bubblegum pink
       ];
-      const idx = Math.round(hue / 25) % candyPalette.length;
-      return candyPalette[idx];
+      return jellyPalette[Math.round(hue / 25) % jellyPalette.length];
     },
-    ambientColor: "#ffddee",
-    ambientIntensity: 2.2,
-    dirLightColor: "#fff2ff",
-    dirLightIntensity: 1.3,
-    rimColor: "#ff55bb",
-    rimIntensity: 0.06,
-    fogColor: "#f5e8ff",
-    fogNear: 30,
-    fogFar: 100,
-    bloomIntensity: 0.9,
-    bloomThreshold: 0.22,
-    titleGradient: "linear-gradient(135deg, #ff3d9a, #e040fb, #00bfff)",
-    scoreColor: "#c026d3",
-    overlayBg: "rgba(255,230,255,0.88)",
-    buttonBg: "linear-gradient(135deg, #ff3d9a, #e040fb)",
-    buttonText: "#fff",
+    ambientColor: "#FFE4E6",
+    ambientIntensity: 0.6,
+    dirLightColor: "#FFF5E6",
+    dirLightIntensity: 1.8,
+    rimColor: "#FFB6D9",
+    rimIntensity: 0.8,
+    fogColor: "#FFF0F5",
+    fogNear: 15,
+    fogFar: 80,
+    bloomIntensity: 0.5,
+    bloomThreshold: 0.2,
+    titleGradient: "linear-gradient(135deg, #FFB6C1, #E6E6FA, #B0E0E6)",
+    scoreColor: "#FF3D9A",
+    overlayBg: "rgba(255, 240, 245, 0.85)",
+    buttonBg: "linear-gradient(135deg, #FFB6D9, #FFB6C1)",
+    buttonText: "#86198f",
     textColor: "#86198f",
-    subtleTextColor: "rgba(134,25,143,0.45)",
-    uiItemBg: "rgba(134, 25, 143, 0.06)",
+    subtleTextColor: "rgba(134, 25, 143, 0.5)",
+    uiItemBg: "rgba(134, 25, 143, 0.08)",
     uiItemBorder: "rgba(134, 25, 143, 0.15)",
-    uiItemText: "rgba(134, 25, 143, 0.6)",
+    uiItemText: "rgba(134, 25, 143, 0.7)",
     uiItemActiveText: "#86198f",
     isDark: false,
-    materialRoughness: 0.0,
+    materialRoughness: 0.05,
     materialMetalness: 0.0,
     useClearcoat: true,
     useTransmission: false,

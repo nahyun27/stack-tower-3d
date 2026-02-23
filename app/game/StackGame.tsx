@@ -19,6 +19,8 @@ import ElectricSparks from "./ElectricSparks";
 import CityGrid from "./CityGrid";
 import AuroraBackground from "./AuroraBackground";
 import IceSparkles from "./IceSparkles";
+import JellyClouds from "./JellyClouds";
+import JellyBubbles from "./JellyBubbles";
 
 interface StackGameProps {
   store: GameStore;
@@ -32,7 +34,7 @@ export default function StackGame({ store, theme, playDrop }: StackGameProps) {
   const { state, dropBox, removeFallenPiece } = store;
 
   // Live world position of the oscillating box (updated every frame by MovingBox)
-  const positionRef = useRef<{ x: number; z: number }>({ x: 0, z: 0 });
+  const positionRef = useRef<[number, number, number]>([0, 1, 0]);
 
   // Landing effects state (visual only)
   const [landingEffects, setLandingEffects] = useState<LandingEffectData[]>([]);
@@ -80,7 +82,8 @@ export default function StackGame({ store, theme, playDrop }: StackGameProps) {
   const handleClick = useCallback(() => {
     if (state.phase === "playing") {
       playDrop();
-      dropBox(positionRef.current.x, positionRef.current.z);
+      const [x, , z] = positionRef.current;
+      dropBox(x, z);
     }
   }, [state.phase, dropBox, playDrop]);
 
@@ -112,6 +115,15 @@ export default function StackGame({ store, theme, playDrop }: StackGameProps) {
           <AuroraBackground />
           <IceSparkles />
           <hemisphereLight color="#00e8ff" groundColor="#4466ff" intensity={0.4} />
+        </>
+      )}
+
+      {/* ── Jelly: clouds, bubbles, soft lights (jelly theme only) ────────── */}
+      {theme.id === "jelly" && (
+        <>
+          <JellyClouds />
+          <JellyBubbles />
+          <pointLight position={[0, 10, 0]} color="#FFE4E6" intensity={0.5} />
         </>
       )}
 
@@ -150,7 +162,7 @@ export default function StackGame({ store, theme, playDrop }: StackGameProps) {
       {/* ── Tower blocks ───────────────────────────────────────────── */}
       <StackedBoxes
         boxes={state.stack}
-        latestBoxId={latestBoxId}
+        latestBoxId={latestBoxId ?? undefined}
         theme={theme}
       />
 
@@ -167,6 +179,7 @@ export default function StackGame({ store, theme, playDrop }: StackGameProps) {
           pivotX={pivotX}
           pivotZ={pivotZ}
           positionRef={positionRef}
+          landed={latestBoxId !== null}
         />
       )}
 

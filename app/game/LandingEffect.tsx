@@ -203,6 +203,94 @@ function ParticleBurst({ x, y, z, color, count = 10 }: ParticleBurstProps) {
   );
 }
 
+// ─── Jelly Droplet Burst ───────────────────────────────────────────────────
+
+function JellyDropletBurst({ x, y, z }: { x: number; y: number; z: number }) {
+  const meshRefs = useRef<(THREE.Mesh | null)[]>([]);
+  const particles = useRef(
+    Array.from({ length: 12 }, () => ({
+      vx: (Math.random() - 0.5) * 3,
+      vy: Math.random() * 3 + 2,
+      vz: (Math.random() - 0.5) * 3,
+      scale: 0.08 + Math.random() * 0.1,
+    }))
+  );
+  const elapsed = useRef(0);
+
+  useFrame((_, delta) => {
+    elapsed.current += delta;
+    const t = elapsed.current;
+    particles.current.forEach((p, i) => {
+      const mesh = meshRefs.current[i];
+      if (!mesh) return;
+      mesh.position.x = p.vx * t;
+      mesh.position.y = p.vy * t - 9.8 * 0.5 * t * t;
+      mesh.position.z = p.vz * t;
+      const opacity = Math.max(0, 0.4 - t * 0.6);
+      (mesh.material as THREE.MeshBasicMaterial).opacity = opacity;
+    });
+  });
+
+  return (
+    <group position={[x, y + 0.5, z]}>
+      {particles.current.map((p, i) => (
+        <mesh key={i} ref={(el) => (meshRefs.current[i] = el)}>
+          <sphereGeometry args={[p.scale, 8, 8]} />
+          <meshBasicMaterial color="#FFB6D9" transparent opacity={0.4} />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
+// ─── Jelly Sparkle Burst (Perfect) ──────────────────────────────────────────
+
+function JellySparkleBurst({ x, y, z }: { x: number; y: number; z: number }) {
+  const meshRefs = useRef<(THREE.Mesh | null)[]>([]);
+  const particles = useRef(
+    Array.from({ length: 24 }, () => ({
+      vx: (Math.random() - 0.5) * 6,
+      vy: Math.random() * 6 + 1,
+      vz: (Math.random() - 0.5) * 6,
+      scale: 0.1 + Math.random() * 0.1,
+      color: new THREE.Color().setHSL(Math.random(), 0.8, 0.7),
+      type: Math.random() > 0.5 ? "star" : "confetti",
+    }))
+  );
+  const elapsed = useRef(0);
+
+  useFrame((_, delta) => {
+    elapsed.current += delta;
+    const t = elapsed.current;
+    particles.current.forEach((p, i) => {
+      const mesh = meshRefs.current[i];
+      if (!mesh) return;
+      mesh.position.x = p.vx * t;
+      mesh.position.y = p.vy * t - 15 * 0.5 * t * t;
+      mesh.position.z = p.vz * t;
+      mesh.rotation.x += delta * 15;
+      mesh.rotation.y += delta * 15;
+      const opacity = Math.max(0, 1 - t * 1.2);
+      (mesh.material as THREE.MeshBasicMaterial).opacity = opacity;
+    });
+  });
+
+  return (
+    <group position={[x, y + 0.5, z]}>
+      {particles.current.map((p, i) => (
+        <mesh key={i} ref={(el) => (meshRefs.current[i] = el)}>
+          {p.type === "star" ? (
+            <tetrahedronGeometry args={[p.scale, 0]} />
+          ) : (
+            <planeGeometry args={[p.scale, p.scale]} />
+          )}
+          <meshBasicMaterial color={p.color} transparent opacity={1} side={THREE.DoubleSide} />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
 // ─── "Perfect!" floating text ────────────────────────────────────────────────
 
 function PerfectText({ x, y, z }: { x: number; y: number; z: number }) {
@@ -245,10 +333,11 @@ interface LandingEffectProps {
 function LandingEffect({ effect, onDone }: LandingEffectProps) {
   const ringDone = useRef(false);
   const isIce = effect.themeId === "ice";
+  const isJelly = effect.themeId === "jelly";
 
   return (
     <>
-      {!isIce && (
+      {!isIce && !isJelly && (
         <RingEffect
           x={effect.x} y={effect.y} z={effect.z}
           color={effect.color}
@@ -259,6 +348,8 @@ function LandingEffect({ effect, onDone }: LandingEffectProps) {
       )}
       {isIce ? (
         <IceCrystalBurst x={effect.x} y={effect.y} z={effect.z} />
+      ) : isJelly ? (
+        <JellyDropletBurst x={effect.x} y={effect.y} z={effect.z} />
       ) : (
         <ParticleBurst
           x={effect.x} y={effect.y} z={effect.z}
@@ -266,19 +357,21 @@ function LandingEffect({ effect, onDone }: LandingEffectProps) {
           count={effect.perfect ? 16 : 10}
         />
       )}
-      {isIce && effect.perfect && (
+      {(isIce && effect.perfect) ? (
         <RadialIceSpikes x={effect.x} y={effect.y} z={effect.z} />
-      )}
+      ) : (isJelly && effect.perfect) ? (
+        <JellySparkleBurst x={effect.x} y={effect.y} z={effect.z} />
+      ) : null}
       {effect.perfect && (
         <PerfectText x={effect.x} y={effect.y} z={effect.z} />
       )}
-      {/* Fallback for ice ring completion since we hid the RingEffect */}
-      {isIce && (
+      {/* Fallback for components that don't have a built-in onDone */}
+      {(isIce || isJelly) && (
         <primitive
           object={new THREE.Object3D()}
           onUpdate={() => {
             if (!ringDone.current) {
-              setTimeout(() => { if (!ringDone.current) { ringDone.current = true; onDone(effect.id); } }, 600);
+              setTimeout(() => { if (!ringDone.current) { ringDone.current = true; onDone(effect.id); } }, 800);
             }
           }}
         />
