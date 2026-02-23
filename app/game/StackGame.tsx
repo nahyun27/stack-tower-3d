@@ -17,6 +17,8 @@ import SnowParticles from "./SnowParticles";
 import RainParticles from "./RainParticles";
 import ElectricSparks from "./ElectricSparks";
 import CityGrid from "./CityGrid";
+import AuroraBackground from "./AuroraBackground";
+import IceSparkles from "./IceSparkles";
 
 interface StackGameProps {
   store: GameStore;
@@ -57,6 +59,7 @@ export default function StackGame({ store, theme, playDrop }: StackGameProps) {
           z: placed.z,
           color: theme.blockColor(placed.hue),
           perfect: state.lastDropPerfect,
+          themeId: theme.id,
         },
       ]);
       // Clear "latest" after bounce animation completes (~600ms)
@@ -91,18 +94,24 @@ export default function StackGame({ store, theme, playDrop }: StackGameProps) {
       {/* ── Lighting (theme-aware) ─────────────────────────────────── */}
       <ambientLight color={theme.ambientColor} intensity={theme.ambientIntensity} />
       <directionalLight
-        position={[5, 15, 5]}
+        position={[3, 8, 3]}
         color={theme.dirLightColor}
         intensity={theme.dirLightIntensity}
         castShadow
         shadow-mapSize-width={1024}
         shadow-mapSize-height={1024}
       />
+      {/* ── Rim light from behind (for ice/neon) ────────────────── */}
+      {(theme.useNeonGlass || theme.useIceCrystal) && (
+        <pointLight position={[-3, 5, -3]} color={theme.id === "ice" ? "#00ffff" : "#ff00cc"} intensity={1.2} />
+      )}
       {/* ── Aurora fill light (ice theme only) ───────────────────── */}
+      {/* ── Aurora Fill & Sparkles (ice theme only) ───────────────────── */}
       {theme.id === "ice" && (
         <>
-          <hemisphereLight color="#00e8ff" groundColor="#4466ff" intensity={0.7} />
-          <pointLight position={[0, 30, 0]} color="#00ffcc" intensity={0.5} distance={80} />
+          <AuroraBackground />
+          <IceSparkles />
+          <hemisphereLight color="#00e8ff" groundColor="#4466ff" intensity={0.4} />
         </>
       )}
 
@@ -162,7 +171,11 @@ export default function StackGame({ store, theme, playDrop }: StackGameProps) {
       )}
 
       {/* ── Falling cut-off pieces ──────────────────────────────────── */}
-      <FallingPieces pieces={state.fallingPieces} onRemove={removeFallenPiece} theme={theme} />
+      <FallingPieces
+        pieces={state.fallingPieces}
+        onRemove={removeFallenPiece}
+        theme={theme}
+      />
 
       {/* ── Landing ring / particles / Perfect text ─────────────────── */}
       <LandingEffects effects={landingEffects} onDone={removeLandingEffect} />
@@ -185,12 +198,6 @@ export default function StackGame({ store, theme, playDrop }: StackGameProps) {
           intensity={theme.bloomIntensity}
           luminanceThreshold={theme.bloomThreshold}
           luminanceSmoothing={0.9}
-        />
-        <ChromaticAberration
-          blendFunction={BlendFunction.NORMAL}
-          offset={[theme.id === "neon" ? 0.002 : 0, theme.id === "neon" ? 0.002 : 0] as unknown as import("three").Vector2}
-          radialModulation={false}
-          modulationOffset={0}
         />
         <Vignette eskil={false} offset={0.12} darkness={theme.isDark ? 0.55 : 0.2} />
       </EffectComposer>

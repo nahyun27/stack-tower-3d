@@ -12,6 +12,7 @@ export interface LandingEffectData {
   z: number;
   color: string;
   perfect: boolean;
+  themeId?: string;
 }
 
 // ─── Expanding ring + disc flash ────────────────────────────────────────────
@@ -86,6 +87,77 @@ interface ParticleBurstProps {
   x: number; y: number; z: number;
   color: string;
   count?: number;
+}
+
+// ─── Ice Crystal Burst ───────────────────────────────────────────────────
+
+function IceCrystalBurst({ x, y, z }: { x: number; y: number; z: number }) {
+  const meshRefs = useRef<(THREE.Mesh | null)[]>([]);
+  const particles = useRef(
+    Array.from({ length: 20 }, () => ({
+      vx: (Math.random() - 0.5) * 4,
+      vy: Math.random() * 4 + 2,
+      vz: (Math.random() - 0.5) * 4,
+      scale: 0.1 + Math.random() * 0.15,
+    }))
+  );
+  const elapsed = useRef(0);
+
+  useFrame((_, delta) => {
+    elapsed.current += delta;
+    const t = elapsed.current;
+    particles.current.forEach((p, i) => {
+      const mesh = meshRefs.current[i];
+      if (!mesh) return;
+      mesh.position.x = p.vx * t;
+      mesh.position.y = p.vy * t - 9.8 * 0.5 * t * t;
+      mesh.position.z = p.vz * t;
+      mesh.rotation.y += delta * 5;
+      mesh.rotation.x += delta * 2;
+      const opacity = Math.max(0, 1 - t * 1.5);
+      (mesh.material as THREE.MeshBasicMaterial).opacity = opacity;
+    });
+  });
+
+  return (
+    <group position={[x, y + 0.5, z]}>
+      {particles.current.map((p, i) => (
+        <mesh key={i} ref={(el) => (meshRefs.current[i] = el)}>
+          <octahedronGeometry args={[p.scale, 0]} />
+          <meshBasicMaterial color="#7FDBFF" transparent opacity={1} blending={THREE.AdditiveBlending} />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
+// ─── Radial Ice Spikes (Perfect) ──────────────────────────────────────────
+
+function RadialIceSpikes({ x, y, z }: { x: number; y: number; z: number }) {
+  const groupRef = useRef<THREE.Group>(null);
+  const elapsed = useRef(0);
+  const DURATION = 0.6;
+
+  useFrame((_, delta) => {
+    elapsed.current += delta;
+    const t = Math.min(elapsed.current / DURATION, 1);
+    if (!groupRef.current) return;
+    groupRef.current.scale.set(1 + t * 4, 1 + t * 4, 1 + t * 4);
+    groupRef.current.children.forEach((child) => {
+      ((child as THREE.Mesh).material as THREE.MeshBasicMaterial).opacity = 1 - t;
+    });
+  });
+
+  return (
+    <group ref={groupRef} position={[x, y + 0.5, z]}>
+      {Array.from({ length: 12 }).map((_, i) => (
+        <mesh key={i} rotation={[0, (i * Math.PI) / 6, Math.PI / 2]} position={[0.5, 0, 0]}>
+          <coneGeometry args={[0.05, 0.8, 4]} />
+          <meshBasicMaterial color="#ffffff" transparent opacity={1} blending={THREE.AdditiveBlending} />
+        </mesh>
+      ))}
+    </group>
+  );
 }
 
 function ParticleBurst({ x, y, z, color, count = 10 }: ParticleBurstProps) {
@@ -172,23 +244,44 @@ interface LandingEffectProps {
 
 function LandingEffect({ effect, onDone }: LandingEffectProps) {
   const ringDone = useRef(false);
+  const isIce = effect.themeId === "ice";
 
   return (
     <>
-      <RingEffect
-        x={effect.x} y={effect.y} z={effect.z}
-        color={effect.color}
-        onDone={() => {
-          if (!ringDone.current) { ringDone.current = true; onDone(effect.id); }
-        }}
-      />
-      <ParticleBurst
-        x={effect.x} y={effect.y} z={effect.z}
-        color={effect.perfect ? "#FFD700" : effect.color}
-        count={effect.perfect ? 16 : 10}
-      />
+      {!isIce && (
+        <RingEffect
+          x={effect.x} y={effect.y} z={effect.z}
+          color={effect.color}
+          onDone={() => {
+            if (!ringDone.current) { ringDone.current = true; onDone(effect.id); }
+          }}
+        />
+      )}
+      {isIce ? (
+        <IceCrystalBurst x={effect.x} y={effect.y} z={effect.z} />
+      ) : (
+        <ParticleBurst
+          x={effect.x} y={effect.y} z={effect.z}
+          color={effect.perfect ? "#FFD700" : effect.color}
+          count={effect.perfect ? 16 : 10}
+        />
+      )}
+      {isIce && effect.perfect && (
+        <RadialIceSpikes x={effect.x} y={effect.y} z={effect.z} />
+      )}
       {effect.perfect && (
         <PerfectText x={effect.x} y={effect.y} z={effect.z} />
+      )}
+      {/* Fallback for ice ring completion since we hid the RingEffect */}
+      {isIce && (
+        <primitive
+          object={new THREE.Object3D()}
+          onUpdate={() => {
+            if (!ringDone.current) {
+              setTimeout(() => { if (!ringDone.current) { ringDone.current = true; onDone(effect.id); } }, 600);
+            }
+          }}
+        />
       )}
     </>
   );

@@ -43,6 +43,32 @@ function FallingPieceMesh({ piece, onRemove, theme }: FallingPieceProps) {
   // Use the theme's color function so the color always matches the stacked block
   const color = theme.blockColor(piece.hue);
 
+  // Render multiple shards if Ice theme
+  if (theme.id === "ice") {
+    const shardCount = 4;
+    return (
+      <group ref={meshRef as any} position={[piece.x, piece.y, piece.z]}>
+        {Array.from({ length: shardCount }).map((_, i) => {
+          const offsetX = (i - 1.5) * (piece.width / 3);
+          const offsetZ = ((i % 2) - 0.5) * (piece.depth / 2);
+          return (
+            <mesh key={i} position={[offsetX, 0, offsetZ]} rotation={[Math.random(), Math.random(), Math.random()]}>
+              <octahedronGeometry args={[Math.min(0.3, piece.width / 2), 0]} />
+              <meshPhysicalMaterial
+                color={color}
+                roughness={0.1}
+                metalness={0.3}
+                transmission={0.8}
+                transparent
+                opacity={0.6}
+              />
+            </mesh>
+          );
+        })}
+      </group>
+    );
+  }
+
   return (
     <mesh
       ref={meshRef}
@@ -59,6 +85,15 @@ function FallingPieceMesh({ piece, onRemove, theme }: FallingPieceProps) {
             metalness={0.1}
             transparent
             opacity={0.75}
+          />
+        ) : theme.useIceCrystal ? (
+          <meshPhysicalMaterial
+            color={color}
+            roughness={0.1}
+            metalness={0.3}
+            transmission={0.8}
+            transparent
+            opacity={0.6}
           />
         ) : theme.useClearcoat ? (
           <meshPhysicalMaterial

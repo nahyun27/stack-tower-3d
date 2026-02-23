@@ -54,7 +54,7 @@ body,
   left: 18px;
   display: flex;
   gap: 6px;
-  pointer-events: all;
+  pointer-events: auto;
   background: rgba(0, 0, 0, 0.3);
   backdrop-filter: blur(8px);
   border-radius: 14px;
@@ -116,7 +116,7 @@ body,
   display: flex;
   align-items: center;
   justify-content: center;
-  pointer-events: all;
+  pointer-events: auto;
   transition: transform 0.15s ease, background 0.15s ease;
   color: inherit;
   line-height: 1;
@@ -188,8 +188,8 @@ body,
   gap: 8px;
   background: var(--overlay-bg);
   backdrop-filter: blur(6px);
-  pointer-events: all;
-  transition: background 0.5s ease;
+  pointer-events: auto;
+  transition: background 0.5s ease, opacity 0.3s ease, visibility 0.3s ease;
 }
 
 /* ── Start screen ────────────────────────────────────────────────────── */
@@ -283,7 +283,7 @@ body,
   border: none;
   border-radius: 100px;
   cursor: pointer;
-  pointer-events: all;
+  pointer-events: auto;
   transition: transform 0.15s ease, box-shadow 0.15s ease;
   box-shadow: 0 4px 24px rgba(100, 179, 255, 0.3);
 }
@@ -364,7 +364,7 @@ body,
 /* ── Overlay transitions ─────────────────────────────────────────────── */
 .overlay-visible {
   opacity: 1;
-  pointer-events: all;
+  pointer-events: auto;
   transform: translateY(0);
   transition: opacity 0.35s ease, transform 0.35s ease;
 }
@@ -372,14 +372,16 @@ body,
 .overlay-hidden {
   opacity: 0;
   pointer-events: none;
+  visibility: hidden;
   transform: translateY(12px);
-  transition: opacity 0.25s ease, transform 0.25s ease;
+  transition: opacity 0.25s ease, transform 0.25s ease, visibility 0.25s;
 }
 
 /* ── Score panel visibility ──────────────────────────────────────────── */
 .score-hidden {
   opacity: 0;
   pointer-events: none;
+  visibility: hidden;
 }
 
 /* ── Start screen button ─────────────────────────────────────────────── */
@@ -394,7 +396,7 @@ body,
   border: none;
   border-radius: 100px;
   cursor: pointer;
-  pointer-events: all;
+  pointer-events: auto;
   transition: transform 0.15s ease, box-shadow 0.15s ease;
   box-shadow: 0 4px 28px rgba(100, 179, 255, 0.35);
   animation: pulse 2.2s ease-in-out infinite;
@@ -432,7 +434,8 @@ body,
   font-weight: 700;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: var(--subtle-text);
+  color: var(--ui-item-text);
+  opacity: 0.8;
 }
 
 .inline-theme-buttons {
@@ -445,30 +448,32 @@ body,
   flex-direction: column;
   align-items: center;
   gap: 4px;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1.5px solid rgba(255, 255, 255, 0.12);
+  background: var(--ui-item-bg);
+  border: 1.5px solid var(--ui-item-border);
   border-radius: 14px;
   padding: 10px 14px;
   cursor: pointer;
-  color: rgba(255, 255, 255, 0.55);
+  color: var(--ui-item-text);
   transition: all 0.2s ease;
   font-family: inherit;
-  pointer-events: all;
+  pointer-events: auto;
   min-width: 62px;
 }
 
 .inline-theme-btn:hover {
-  background: rgba(255, 255, 255, 0.15);
-  border-color: rgba(255, 255, 255, 0.3);
-  color: rgba(255, 255, 255, 0.9);
+  background: var(--ui-item-bg);
+  filter: brightness(0.9);
+  border-color: var(--ui-item-text);
+  color: var(--ui-item-active-text);
   transform: translateY(-2px);
 }
 
 .inline-theme-btn.active {
-  background: rgba(255, 255, 255, 0.18);
-  border-color: rgba(255, 255, 255, 0.45);
-  color: #fff;
-  box-shadow: 0 0 16px rgba(255, 255, 255, 0.15);
+  background: var(--ui-item-bg);
+  filter: brightness(0.95);
+  border-color: var(--ui-item-active-text);
+  color: var(--ui-item-active-text);
+  box-shadow: 0 0 16px var(--ui-item-bg);
 }
 
 .inline-theme-btn .theme-emoji {
@@ -487,7 +492,7 @@ body,
   display: flex;
   gap: 12px;
   margin-top: 28px;
-  pointer-events: all;
+  pointer-events: auto;
 }
 
 .gameover-btn {
@@ -526,6 +531,7 @@ body,
 .gameover-btn:active {
   transform: scale(0.97);
 }
+
 
 /* ── Neon City: Scanline overlay ──────────────────────────────────────── */
 .game-root::after {

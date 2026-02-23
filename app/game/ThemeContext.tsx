@@ -38,6 +38,10 @@ export interface ThemeConfig {
   buttonText: string;
   textColor: string;
   subtleTextColor: string;
+  uiItemBg: string;
+  uiItemBorder: string;
+  uiItemText: string;
+  uiItemActiveText: string;
   isDark: boolean;
   /** Block material — roughness & metalness for standard themes */
   materialRoughness: number;
@@ -50,6 +54,8 @@ export interface ThemeConfig {
   useJelly: boolean;
   /** If true, use glass-with-neon-edges material (neon city theme) */
   useNeonGlass: boolean;
+  /** If true, use transparent ice crystal material (ice theme) */
+  useIceCrystal: boolean;
   /** Path to background music track */
   bgMusic: string;
 }
@@ -81,6 +87,10 @@ export const THEMES: Record<ThemeId, ThemeConfig> = {
     buttonText: "#000",
     textColor: "#fff",
     subtleTextColor: "rgba(255,255,255,0.45)",
+    uiItemBg: "rgba(255, 255, 255, 0.08)",
+    uiItemBorder: "rgba(255, 255, 255, 0.12)",
+    uiItemText: "rgba(255, 255, 255, 0.55)",
+    uiItemActiveText: "#fff",
     isDark: true,
     materialRoughness: 0.3,
     materialMetalness: 0.18,
@@ -88,6 +98,7 @@ export const THEMES: Record<ThemeId, ThemeConfig> = {
     useTransmission: false,
     useJelly: false,
     useNeonGlass: false,
+    useIceCrystal: false,
     bgMusic: "/sounds/classic.mp3",
   },
   neon: {
@@ -129,6 +140,10 @@ export const THEMES: Record<ThemeId, ThemeConfig> = {
     buttonText: "#fff",
     textColor: "#00ffff",
     subtleTextColor: "rgba(0,255,255,0.5)",
+    uiItemBg: "rgba(0, 255, 255, 0.06)",
+    uiItemBorder: "rgba(0, 255, 255, 0.15)",
+    uiItemText: "rgba(0, 255, 255, 0.6)",
+    uiItemActiveText: "#00ffff",
     isDark: true,
     materialRoughness: 0.05,
     materialMetalness: 0.1,
@@ -136,46 +151,56 @@ export const THEMES: Record<ThemeId, ThemeConfig> = {
     useTransmission: false,
     useJelly: false,
     useNeonGlass: true,
-    bgMusic: "/sounds/neon.mp3",
+    useIceCrystal: false,
+    bgMusic: "/sounds/neon_city.mp3",
   },
   ice: {
     id: "ice",
     name: "Ice",
     emoji: "🧊",
-    bgGradient:
-      "linear-gradient(180deg, #06102a 0%, #0a2040 35%, #083358 65%, #1463a0 88%, #d0ecff 100%)",
+    bgGradient: "linear-gradient(180deg, #e6f7ff 0%, #b3e0ff 50%, #80d4ff 100%)",
     blockColor: (hue: number) => {
-      // Ice palette: vary between icy blue, cyan, white, and pale lavender
-      const iceHues = [195, 210, 185, 220, 200];
-      const idx = Math.floor((hue / 360) * iceHues.length) % iceHues.length;
-      return `hsl(${iceHues[idx]}, 65%, 88%)`;
+      const icePalette = [
+        "#B0E0E6", // Ice blue
+        "#7FDBFF", // Crystal cyan
+        "#F0F8FF", // Frozen white
+        "#CCCCFF", // Arctic purple
+        "#4DA6FF", // Glacier blue
+        "#E0F2FF", // Diamond clear
+      ];
+      return icePalette[Math.round(hue / 25) % icePalette.length];
     },
-    ambientColor: "#b8dff4",
-    ambientIntensity: 1.3,
-    dirLightColor: "#e8f6ff",
-    dirLightIntensity: 1.5,
-    rimColor: "#70c8ff",
-    rimIntensity: 0.35,
-    fogColor: "#aad4f0",
-    fogNear: 25,
-    fogFar: 90,
-    bloomIntensity: 1.4,
-    bloomThreshold: 0.45,
-    titleGradient: "linear-gradient(135deg, #ffffff, #88d4f5, #a78bfa)",
-    scoreColor: "#38bdf8",
-    overlayBg: "rgba(6,16,42,0.78)",
-    buttonBg: "linear-gradient(135deg, #38bdf8, #818cf8)",
+    ambientColor: "#b3e0ff",
+    ambientIntensity: 0.5,
+    dirLightColor: "#e6f7ff",
+    dirLightIntensity: 2.0,
+    rimColor: "#70c8ff", // Kept from original, not in diff
+    rimIntensity: 0.35, // Kept from original, not in diff
+    fogColor: "#f0f8ff",
+    fogNear: 5,
+    fogFar: 50,
+    bloomIntensity: 0.8,
+    bloomThreshold: 0.3,
+    titleGradient: "linear-gradient(135deg, #7FDBFF, #B0E0E6, #E0F2FF)",
+    scoreColor: "#4DA6FF",
+    overlayBg: "rgba(230, 247, 255, 0.8)",
+    buttonBg: "linear-gradient(135deg, #7FDBFF, #4DA6FF)",
     buttonText: "#fff",
-    textColor: "#e0f4ff",
-    subtleTextColor: "rgba(200,235,255,0.55)",
-    isDark: true,
-    materialRoughness: 0.0,
-    materialMetalness: 0.05,
+    textColor: "#005580",
+    subtleTextColor: "rgba(0, 85, 128, 0.5)",
+    uiItemBg: "rgba(0, 85, 128, 0.08)",
+    uiItemBorder: "rgba(0, 85, 128, 0.15)",
+    uiItemText: "rgba(0, 85, 128, 0.65)",
+    uiItemActiveText: "#005580",
+    isDark: false,
+    materialRoughness: 0.1,
+    materialMetalness: 0.3,
     useClearcoat: false,
     useTransmission: true,
     useJelly: false,
     useNeonGlass: false,
-    bgMusic: "/sounds/ice.mp3",
+    useIceCrystal: true,
+    bgMusic: "/sounds/winter_theme.mp3",
   },
   jelly: {
     id: "jelly",
@@ -217,6 +242,10 @@ export const THEMES: Record<ThemeId, ThemeConfig> = {
     buttonText: "#fff",
     textColor: "#86198f",
     subtleTextColor: "rgba(134,25,143,0.45)",
+    uiItemBg: "rgba(134, 25, 143, 0.06)",
+    uiItemBorder: "rgba(134, 25, 143, 0.15)",
+    uiItemText: "rgba(134, 25, 143, 0.6)",
+    uiItemActiveText: "#86198f",
     isDark: false,
     materialRoughness: 0.0,
     materialMetalness: 0.0,
@@ -224,6 +253,7 @@ export const THEMES: Record<ThemeId, ThemeConfig> = {
     useTransmission: false,
     useJelly: true,
     useNeonGlass: false,
+    useIceCrystal: false,
     bgMusic: "/sounds/jelly_theme.mp3",
   },
 };
@@ -262,6 +292,10 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     document.documentElement.style.setProperty("--btn-bg", t.buttonBg);
     document.documentElement.style.setProperty("--btn-text", t.buttonText);
     document.documentElement.style.setProperty("--title-gradient", t.titleGradient);
+    document.documentElement.style.setProperty("--ui-item-bg", t.uiItemBg);
+    document.documentElement.style.setProperty("--ui-item-border", t.uiItemBorder);
+    document.documentElement.style.setProperty("--ui-item-text", t.uiItemText);
+    document.documentElement.style.setProperty("--ui-item-active-text", t.uiItemActiveText);
   }, [themeId]);
 
   const setTheme = useCallback((id: ThemeId) => {

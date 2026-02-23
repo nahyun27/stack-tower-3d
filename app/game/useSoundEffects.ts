@@ -197,6 +197,38 @@ export function useSoundEffects() {
         return;
       }
 
+      if (themeId === "ice") {
+        // Ice Crystal: high-pitched crystal chimes
+        if (quality === "perfect") {
+          // Ice bell ring sequence
+          [1200, 1400, 1600].forEach((freq, i) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = "sine";
+            osc.frequency.setValueAtTime(freq, ctx.currentTime + i * 0.1);
+            gain.connect(master);
+            const t = ctx.currentTime + i * 0.1;
+            gain.gain.setValueAtTime(0, t);
+            gain.gain.linearRampToValueAtTime(0.2, t + 0.05);
+            gain.gain.exponentialRampToValueAtTime(0.001, t + 0.5);
+            osc.start(t);
+            osc.stop(t + 0.5);
+          });
+        } else {
+          // Single crystal chime
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = "triangle";
+          osc.frequency.setValueAtTime(800, ctx.currentTime);
+          gain.connect(master);
+          gain.gain.setValueAtTime(0.25, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.2);
+          osc.start();
+          osc.stop(ctx.currentTime + 0.2);
+        }
+        return;
+      }
+
       // Default sounds for other themes
       if (quality === "perfect") {
         [800, 1200, 1600].forEach((freq, i) => {
@@ -230,11 +262,37 @@ export function useSoundEffects() {
     } catch { }
   }, []);
 
-  // ── Falling piece whoosh ──────────────────────────────────────────────────
-  const playFall = useCallback(() => {
+  // ── Falling piece whoosh / Ice crack ─────────────────────────────────────
+  const playFall = useCallback((themeId?: string) => {
     if (isMutedRef.current) return;
     try {
       const [ctx, master] = getCtx();
+
+      if (themeId === "ice") {
+        // Glass crack sound - white noise burst + filter
+        const bufLen = Math.floor(ctx.sampleRate * 0.25);
+        const buf = ctx.createBuffer(1, bufLen, ctx.sampleRate);
+        const data = buf.getChannelData(0);
+        for (let i = 0; i < bufLen; i++) data[i] = Math.random() * 2 - 1;
+
+        const src = ctx.createBufferSource();
+        src.buffer = buf;
+
+        const filter = ctx.createBiquadFilter();
+        filter.type = "highpass";
+        filter.frequency.setValueAtTime(2000, ctx.currentTime);
+
+        const gain = ctx.createGain();
+        gain.gain.setValueAtTime(0.15, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.2);
+
+        src.connect(filter);
+        filter.connect(gain);
+        gain.connect(master);
+        src.start();
+        return;
+      }
+
       const bufLen = Math.floor(ctx.sampleRate * 0.5);
       const buf = ctx.createBuffer(1, bufLen, ctx.sampleRate);
       const data = buf.getChannelData(0);
@@ -281,6 +339,63 @@ export function useSoundEffects() {
     } catch { }
   }, []);
 
+  // ── Ambient Wind Howl (Ice theme) ──────────────────────────────────────────
+  const windNodeRef = useRef<{ src: AudioBufferSourceNode; gain: GainNode } | null>(null);
+
+  const stopAmbientWind = useCallback(() => {
+    if (windNodeRef.current) {
+      const { src, gain } = windNodeRef.current;
+      if (_ctx) {
+        gain.gain.exponentialRampToValueAtTime(0.001, _ctx.currentTime + 1);
+        src.stop(_ctx.currentTime + 1.1);
+      }
+      windNodeRef.current = null;
+    }
+  }, []);
+
+  const playAmbientWind = useCallback(() => {
+    if (isMutedRef.current) return;
+    if (windNodeRef.current) return; // Already playing
+
+    try {
+      const [ctx, master] = getCtx();
+      const bufLen = ctx.sampleRate * 2; // 2s loop-able buffer
+      const buf = ctx.createBuffer(1, bufLen, ctx.sampleRate);
+      const data = buf.getChannelData(0);
+      for (let i = 0; i < bufLen; i++) data[i] = Math.random() * 2 - 1;
+
+      const src = ctx.createBufferSource();
+      src.buffer = buf;
+      src.loop = true;
+
+      const filter = ctx.createBiquadFilter();
+      filter.type = "bandpass";
+      filter.Q.value = 5;
+      filter.frequency.setValueAtTime(400, ctx.currentTime);
+
+      // LFO for frequency modulation
+      const lfo = ctx.createOscillator();
+      lfo.type = "sine";
+      lfo.frequency.value = 0.2; // 5s cycle
+      const lfoGain = ctx.createGain();
+      lfoGain.gain.value = 200;
+      lfo.connect(lfoGain);
+      lfoGain.connect(filter.frequency);
+      lfo.start();
+
+      const gain = ctx.createGain();
+      gain.gain.setValueAtTime(0, ctx.currentTime);
+      gain.gain.linearRampToValueAtTime(0.02, ctx.currentTime + 2); // Very quiet as requested
+
+      src.connect(filter);
+      filter.connect(gain);
+      gain.connect(master);
+      src.start();
+
+      windNodeRef.current = { src, gain };
+    } catch { }
+  }, []);
+
   return {
     isMuted,
     toggleMute,
@@ -290,6 +405,8 @@ export function useSoundEffects() {
     playGameOver,
     playMusic,
     stopMusic,
+    playAmbientWind,
+    stopAmbientWind,
   };
 }
 

@@ -106,20 +106,22 @@ export default function MovingBox({
             transparent
             opacity={0.82}
           />
-        ) : theme.useTransmission ? (
-          /* 🧊 Ice Crystal moving block */
+        ) : theme.useIceCrystal ? (
+          /* 🧊 Ice Crystal */
           <meshPhysicalMaterial
             color={color}
-            roughness={0.0}
-            metalness={0.05}
-            transmission={0.82}
-            thickness={1.5}
-            ior={1.5}
+            roughness={0.1}
+            metalness={0.3}
+            transmission={0.8}
+            thickness={2.0}
+            ior={1.31}
             clearcoat={1.0}
-            clearcoatRoughness={0.0}
-            reflectivity={1.0}
+            clearcoatRoughness={0.1}
+            reflectivity={0.8}
             transparent
-            opacity={0.92}
+            opacity={0.6}
+            attenuationDistance={0.5}
+            attenuationColor={color}
           />
         ) : theme.useClearcoat ? (
           /* 🍬 Jelly moving block */

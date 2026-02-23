@@ -39,10 +39,20 @@ function GameApp() {
 
     // New falling piece added
     if (state.fallingPieces.length > prevFallingCountRef.current) {
-      sounds.playFall();
+      sounds.playFall(theme.id);
     }
+    // Ambient wind for ice theme
+    if (theme.id === "ice") {
+      sounds.playAmbientWind();
+    } else {
+      sounds.stopAmbientWind();
+    }
+
     prevFallingCountRef.current = state.fallingPieces.length;
-  }, [state.phase, state.score, state.fallingPieces.length, state.lastDropQuality, theme, sounds]);
+    return () => {
+      sounds.stopAmbientWind();
+    };
+  }, [state.phase, state.score, state.fallingPieces.length, state.lastDropQuality, theme, sounds, sounds.playAmbientWind, sounds.stopAmbientWind]);
 
   return (
     <div

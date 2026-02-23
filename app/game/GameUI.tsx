@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { useTheme, THEMES, ThemeId } from "./ThemeContext";
 import { GameStore } from "./useGameStore";
 import { ThemeConfig } from "./ThemeContext";
@@ -72,7 +73,7 @@ export default function GameUI({ store, theme, sounds }: GameUIProps) {
         <InlineThemePicker />
 
         {state.bestScore > 0 && (
-          <p className="best-score-hint">Best: {state.bestScore}</p>
+          <p className="best-score-hint">Best Score: {state.bestScore}</p>
         )}
 
         <button className="start-btn" onClick={startGame}>
@@ -90,17 +91,19 @@ export default function GameUI({ store, theme, sounds }: GameUIProps) {
         )}
 
         {/* Inline theme picker — embedded in game over screen */}
+        <p className="theme-pick-label" style={{ marginTop: 20 }}>Change Theme?</p>
         <InlineThemePicker />
 
         <div className="gameover-btns">
           <button className="gameover-btn gameover-btn-secondary" onClick={resetGame}>
-            🎨 Change Theme
+            🎨 Home
           </button>
           <button className="gameover-btn gameover-btn-primary" onClick={retryGame}>
             🔄 RETRY
           </button>
         </div>
       </div>
+
 
       {/* ── First-move hint (during play) ────────────────────────────── */}
       {state.phase === "playing" && state.score === 0 && (
