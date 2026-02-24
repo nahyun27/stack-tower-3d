@@ -4,7 +4,7 @@
 
 An addictive 3D stacking game where precision is everything. Click at the perfect moment to stack blocks and reach for the sky!
 
-🎮 **[Play Now](https://tower-stacking.vercel.app)**
+[![Live Demo](https://img.shields.io/badge/🕹️-Play%20Now-blue?style=for-the-badge)](https://tower-stacking.vercel.app)
 
 ## 🎬 Preview
 
