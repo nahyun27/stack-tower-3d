@@ -1,56 +1,59 @@
-# 🎮 Stack Tower 3D
+# 🎮 Tower Stacking
 
 > **Test your timing. Build the tallest tower.**
 
-An addictive 3D stacking game where precision matters. Click at the perfect moment to stack blocks and reach for the sky!
+An addictive 3D stacking game where precision is everything. Click at the perfect moment to stack blocks and reach for the sky!
 
-[![Live Demo](https://img.shields.io/badge/🎮-Play%20Now-blue?style=for-the-badge)](https://tower-stacking.vercel.app)
+🎮 **[Play Now](https://tower-stacking.vercel.app)**
 
-<!-- ![Game Preview](public/preview.gif) *← Add screenshot/gif later* -->
+## 🎬 Preview
+
+![Gameplay Demo](public/demo.gif)
+
+<div align="center">
+  <img src="public/screenshots/classic.png" width="200" alt="Classic Theme"/>
+  <img src="public/screenshots/neon.png" width="200" alt="Neon Theme"/>
+  <img src="public/screenshots/ice.png" width="200" alt="Ice Theme"/>
+  <img src="public/screenshots/jelly.png" width="200" alt="Jelly Theme"/>
+</div>
 
 ## ✨ Features
 
 - 🎯 **Precision Timing** - Click at the perfect moment to stack
-- 🌈 **Rainbow Blocks** - Beautiful color gradient as you stack higher
+- 🎨 **4 Unique Themes** - Classic, Neon City, Ice Crystal, Jelly
 - ⚡ **Physics-Based** - Realistic falling animations for missed parts
-- 📊 **Score System** - Track your best score
-- 🎨 **Minimalist Design** - Clean, distraction-free gameplay
+- 🔊 **Sound Effects** - Procedural audio using Web Audio API
+- 📊 **Score Tracking** - Beat your high score
 - 📱 **Mobile Friendly** - Play on any device
-- 🔊 **Sound Effects** - Satisfying audio feedback (coming soon)
 
 ## 🎮 How to Play
 
-1. **Click/Tap** to drop the moving block
-2. **Stack perfectly** on the previous block
-3. **Build higher** - blocks get smaller if you miss
-4. **Beat your high score!**
+1. **Choose a theme** on the start screen
+2. **Click "START"** to begin
+3. **Click/Tap** to drop the moving block
+4. **Stack perfectly** to build higher
+5. **Beat your high score!**
 
-### Pro Tips
-- Perfect placement = bonus points
-- The bigger the overlap, the better
-- Camera follows your tower upward
+💡 **Pro Tip:** Perfect placement (100% overlap) gives bonus points!
 
 ## 🛠 Tech Stack
 
-- **[Next.js 15](https://nextjs.org)** - React framework
-- **[React Three Fiber](https://docs.pmnd.rs/react-three-fiber)** - React renderer for Three.js
-- **[Three.js](https://threejs.org)** - 3D graphics library
-- **[@react-three/drei](https://github.com/pmndrs/drei)** - Useful R3F helpers
-- **[@react-spring/three](https://www.react-spring.dev/)** - Spring physics animations
+![Next.js](https://img.shields.io/badge/Next.js-black?style=flat&logo=next.js)
+![Three.js](https://img.shields.io/badge/Three.js-black?style=flat&logo=three.js)
+![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=flat&logo=typescript&logoColor=white)
+![React Three Fiber](https://img.shields.io/badge/R3F-black?style=flat)
+
+- **Next.js 15** - React framework
+- **React Three Fiber** - React renderer for Three.js
+- **Three.js** - 3D graphics library
 - **TypeScript** - Type safety
-- **Tailwind CSS** - Styling
+- **Web Audio API** - Procedural sound generation
 
 ## 🚀 Quick Start
-
-### Prerequisites
-- Node.js 18+
-- npm or yarn
-
-### Installation
 ```bash
 # Clone the repository
-git clone https://github.com/nahyun27/stack-tower-3d.git
-cd stack-tower-3d
+git clone https://github.com/nahyun27/tower-stacking.git
+cd tower-stacking
 
 # Install dependencies
 npm install
@@ -59,97 +62,48 @@ npm install
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) and start stacking!
+Open [http://localhost:3000](http://localhost:3000) and start playing!
 
-## 📁 Project Structure
-```
-stack-tower-3d/
-├── app/
-│   ├── page.tsx              # Main game component
-│   ├── layout.tsx            # Root layout
-│   └── components/
-│       ├── Game.tsx          # Game logic
-│       ├── Block.tsx         # Block component
-│       ├── Tower.tsx         # Tower manager
-│       └── UI.tsx            # Score & UI
-├── public/
-│   └── sounds/               # Sound effects
-├── README.md
-└── package.json
-```
+## 🎨 Themes
 
-## 🎨 Game Mechanics
+### 🎮 Classic
+Clean, minimal design with rainbow blocks and starfield background.
 
-### Stacking Logic
-1. New block spawns and moves left-right
-2. Player clicks to drop the block
-3. Overlap area with previous block is calculated
-4. Overlapping part stays, rest falls off with physics
-5. Perfect placement (100% overlap) = bonus points
-6. Repeat until tower is too small
+### 🌃 Neon City
+Cyberpunk aesthetic with glowing edges and grid floor.
 
-### Scoring
-- **+1 point** per successful stack
-- **+5 bonus** for perfect placement
-- **High score** saved in local storage
+### 🧊 Ice Crystal
+Winter wonderland with transparent ice blocks and aurora effects.
 
-## 🔮 Roadmap
+### 🍮 Jelly
+Cute and bouncy with pastel colors and wobble animations.
 
-- [x] Core stacking mechanics
-- [x] Physics for falling pieces
-- [x] Score system
-- [ ] Sound effects
-- [ ] Leaderboard (online)
-- [ ] Different block skins
-- [ ] Power-ups
-- [ ] Multiplayer mode
+## 🎯 Game Mechanics
 
-## 🎯 Development Timeline
+**Stacking Logic:**
+1. Block moves horizontally
+2. Click to drop
+3. Only overlapping area stays
+4. Rest falls with physics
+5. Perfect stack = bonus points!
 
-**Week 1: Core Game** ✅
-- Basic mechanics
-- Stacking logic
-- Visual polish
-
-**Week 2: Features** 🚧
-- Sound design
-- UI improvements
-- Mobile optimization
-
-## 📸 Screenshots
-
-*Coming soon - gameplay GIFs and images*
-
-## 🐛 Known Issues
-
-- Performance may vary on older mobile devices
-- Safari may require interaction for audio
-
-## 🤝 Contributing
-
-Contributions welcome! Feel free to:
-- Report bugs
-- Suggest features
-- Submit pull requests
-
-## 📄 License
-
-MIT License - feel free to use this for learning or your own projects!
-
-## 🙏 Acknowledgments
-
-- Inspired by classic stacking games
-- Built with love using React Three Fiber
-- Thanks to the Three.js community
+**Scoring:**
+- +1 point per successful stack
+- +5 bonus for perfect placement
+- High score saved locally
 
 ## 👤 Author
 
 **Nahyun Kim**  
 PhD Student in Computer Science | AI Security Researcher  
-🔗 [GitHub](https://github.com/nahyun27) | 📧 ksknh7@hanyang.ac.kr
+🔗 [GitHub](https://github.com/nahyun27) • 📧 ksknh7@hanyang.ac.kr
 
 ---
+
+<div align="center">
 
 **Made with 🎮 for the joy of gaming**
 
 *Perfect timing leads to perfect towers!*
+
+</div>
