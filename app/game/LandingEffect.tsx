@@ -318,7 +318,7 @@ function PerfectText({ x, y, z }: { x: number; y: number; z: number }) {
       material-transparent
       material-opacity={0}
     >
-      ✦ PERFECT +5 ✦
+      ✦ PERFECT +2 ✦
     </Text>
   );
 }
@@ -411,7 +411,7 @@ export function PreWarmEffects() {
         material-transparent
         material-opacity={0.01} // must be >0 to compile sometimes, but close to 0
       >
-        ✦ PERFECT +5 ✦
+        ✦ PERFECT +2 ✦
       </Text>
 
       {/* Forces compilation of torus, circle, octahedron, cone, plane, etc. */}

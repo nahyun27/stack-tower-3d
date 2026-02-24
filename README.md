@@ -89,21 +89,14 @@ Cute and bouncy with pastel colors and wobble animations.
 
 **Scoring:**
 - +1 point per successful stack
-- +5 bonus for perfect placement
+- +2 bonus for perfect placement
 - High score saved locally
-
-## 👤 Author
-
-**Nahyun Kim**  
-PhD Student in Computer Science | AI Security Researcher  
-🔗 [GitHub](https://github.com/nahyun27) • 📧 ksknh7@hanyang.ac.kr
 
 ---
 
 <div align="center">
 
-**Made with 🎮 for the joy of gaming**
-
-*Perfect timing leads to perfect towers!*
+**Try the game and let me know what I should improve!**
+*📧 ksknh7@hanyang.ac.kr*
 
 </div>

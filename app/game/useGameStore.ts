@@ -202,7 +202,7 @@ export function useGameStore() {
 
       return {
         ...prev,
-        score: prev.score + (isPerfect ? 5 : 1),
+        score: prev.score + (isPerfect ? 2 : 1),
         stack: [...prev.stack, newBox],
         fallingPieces: newFalling,
         currentHue: newHue,
