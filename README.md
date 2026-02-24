@@ -10,13 +10,6 @@ An addictive 3D stacking game where precision is everything. Click at the perfec
 
 ![Gameplay Demo](public/demo.gif)
 
-<div align="center">
-  <img src="public/screenshots/classic.png" width="200" alt="Classic Theme"/>
-  <img src="public/screenshots/neon.png" width="200" alt="Neon Theme"/>
-  <img src="public/screenshots/ice.png" width="200" alt="Ice Theme"/>
-  <img src="public/screenshots/jelly.png" width="200" alt="Jelly Theme"/>
-</div>
-
 ## ✨ Features
 
 - 🎯 **Precision Timing** - Click at the perfect moment to stack
@@ -65,6 +58,12 @@ npm run dev
 Open [http://localhost:3000](http://localhost:3000) and start playing!
 
 ## 🎨 Themes
+<div align="center">
+  <img src="public/screenshots/classic.png" width="200" alt="Classic Theme"/>
+  <img src="public/screenshots/neon.png" width="200" alt="Neon Theme"/>
+  <img src="public/screenshots/ice.png" width="200" alt="Ice Theme"/>
+  <img src="public/screenshots/jelly.png" width="200" alt="Jelly Theme"/>
+</div>
 
 ### 🎮 Classic
 Clean, minimal design with rainbow blocks and starfield background.
