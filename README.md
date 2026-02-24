@@ -42,21 +42,6 @@ An addictive 3D stacking game where precision is everything. Click at the perfec
 - **TypeScript** - Type safety
 - **Web Audio API** - Procedural sound generation
 
-## 🚀 Quick Start
-```bash
-# Clone the repository
-git clone https://github.com/nahyun27/tower-stacking.git
-cd tower-stacking
-
-# Install dependencies
-npm install
-
-# Run development server
-npm run dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) and start playing!
-
 ## 🎨 Themes
 <div align="center">
   <img src="public/screenshots/classic.png" width="200" alt="Classic Theme"/>
@@ -90,6 +75,22 @@ Cute and bouncy with pastel colors and wobble animations.
 - +1 point per successful stack
 - +2 bonus for perfect placement
 - High score saved locally
+
+
+## 🚀 Quick Start
+```bash
+# Clone the repository
+git clone https://github.com/nahyun27/tower-stacking.git
+cd tower-stacking
+
+# Install dependencies
+npm install
+
+# Run development server
+npm run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000) and start playing!
 
 ---
 
